@@ -27,7 +27,6 @@ const Home = ({ navigation }) => {
         { id: '2', name: 'Care Taker2', source: appImages.user },
         { id: '3', name: 'Care Taker3', source: appImages.user },
         { id: '4', name: 'Care Taker4', source: appImages.user },
-        // Add more data as needed
     ];
 
     const renderItem1 = ({ item }) => (
@@ -48,7 +47,7 @@ const Home = ({ navigation }) => {
                 AppStyles.linearGradient,
             ]}
         >
-            <Header text={"Home"} />
+            <Header text={"Home"} press={()=>navigation.navigate('Profile')}/>
             <KeyboardAvoidingView
                 style={{ flex: 1 }}
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}

@@ -1,23 +1,19 @@
 import {Image, ImageBackground, KeyboardAvoidingView, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View} from 'react-native';
-import React, { useState } from 'react';
+import React from 'react';
+import InputField from '../../../components/InputField';
 import {
   responsiveScreenHeight,
   responsiveScreenWidth,
 } from 'react-native-responsive-dimensions';
 import {fontFamily, fontSize} from '../../../services/utilities/Fonts';
 import {Colors} from '../../../services/utilities/Colors';
+import { appImages } from '../../../services/utilities/Assets';
 import { AppStyles } from '../../../services/utilities/AppStyles';
 import LinearGradient from 'react-native-linear-gradient';
 import Header from '../../../components/Header';
-import SwitchToggle from "react-native-switch-toggle";
-import Button from '../../../components/Button';
-import { appIcons } from '../../../services/utilities/Assets';
 
-const Setting = ({navigation}) => {
-  const [on, setOn] = useState(false);
-  const Add = () =>{
- navigation.navigate('HomeStack')
-  }
+const CareGuide = ({navigation}) => {
+ 
   return (
     
     <LinearGradient
@@ -28,7 +24,7 @@ const Setting = ({navigation}) => {
         AppStyles.linearGradient,
       ]}
     >
-      <Header text={"Settings"} press={()=>navigation.navigate('Profile')} />
+        <Header back text={"Saffron Crocus "} onPress={()=>navigation.goBack()} press={()=>navigation.navigate('Profile')} />
      <KeyboardAvoidingView
         style={{flex: 1}}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -40,27 +36,18 @@ const Setting = ({navigation}) => {
             contentContainerStyle={[AppStyles.contentContainer]}
             keyboardShouldPersistTaps="handled">
     <View style={styles.container}>
-    <View style={AppStyles.imageContainer}>
-              <Image style={AppStyles.image} source={appIcons.user} />
-              <Text style={styles.forgot}>Shamraiz</Text>
-            </View>
-      <View style={[AppStyles.row,{width:'97%', alignItems:'center'}]}>
-        <Text style={styles.forgot}>Notifications</Text>
-    <SwitchToggle
-      switchOn={on}
-      onPress={() => setOn(!on)} 
-      circleColorOff= {Colors.appBackground2}
-      circleColorOn={Colors.appBackground2}
-      backgroundColorOn={Colors.appBackground1}
-      backgroundColorOff='#C4C4C4'
-    />
-    </View>
-    <View style={AppStyles.btnContainer}>
-        <Button text={'Add CareTaker'} background={Colors.appBackground5} onPress={()=>navigation.navigate('AddCareTaker')} />
-      </View>
-      <View style={AppStyles.btnContainer}>
-        <Button text={'Logout'} background={Colors.appBackground6} />
-      </View>
+    <Image source={appImages.item3} style={[AppStyles.logo,{marginTop:responsiveScreenHeight(5)}]} />
+        
+        <Text style={styles.forgot}><Text style={styles.heading}>Temprature Need:</Text> 10°C to 20°C</Text>
+     
+    
+        
+        <Text style={styles.forgot}><Text style={styles.heading}>Humidity Need:</Text> 70% to 80%</Text>
+      
+      
+        
+        <Text style={styles.forgot} numberOfLines={5}><Text style={styles.heading}>Moisture Need:</Text> requires well-draining, sandy soil with good drainage.</Text>
+      
     </View>
     </ScrollView>
     </TouchableWithoutFeedback>
@@ -70,20 +57,31 @@ const Setting = ({navigation}) => {
   );
 };
 
-export default Setting;
+export default CareGuide;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  
+  row:{
+    marginVertical:responsiveScreenHeight(1),
+    flexDirection:'row',
+    alignItems:"center",
+    justifyContent:'flex-start',
+    width:'100%'
+  },
+  heading:{
+    fontSize:fontSize.h1,
+    color:Colors.textColor1,
+    fontWeight:'bold'
+},
   
   forgot:{
-    color:Colors.textColor1,
-    marginTop:responsiveScreenHeight(1),
+    color:Colors.textColor4,
     fontFamily:fontFamily.Montserrat,
-    fontSize:fontSize.h2,
-    fontWeight:'700'
+    fontSize:fontSize.fieldText,
+    fontWeight:'700',
+    marginVertical:responsiveScreenHeight(2)
   }
   
 });

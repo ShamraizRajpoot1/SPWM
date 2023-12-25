@@ -68,6 +68,7 @@ import { Colors } from '../../services/utilities/Colors';
             maxLength={props.maxLength}
             onBlur={onBlurHandler}
             placeholderTextColor={Colors.placeholder}
+            editable={props.edit}
           />
           {props.message  && !props.secureTextEntry && (
             <View style={styles.right}>

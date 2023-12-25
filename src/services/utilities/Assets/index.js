@@ -26,7 +26,7 @@ const appImages = {
         setting : require('../../../assets/icons/setting.png'),
         bottomUser : require('../../../assets/icons/bottomUser.png'),
         bottomPlus : require('../../../assets/icons/bottomPlus.png'),
-        
+        right : require('../../../assets/icons/right.png'),
     }
     
         export { appImages, appIcons}

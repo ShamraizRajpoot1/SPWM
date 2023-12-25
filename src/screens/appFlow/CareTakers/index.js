@@ -77,7 +77,7 @@ const CareTakers = ({navigation}) => {
               AppStyles.linearGradient,
           ]}
       >
-      <Header back text={"Care Takers"} onPress={()=>navigation.goBack()}/>
+      <Header back text={"Care Takers"} onPress={()=>navigation.goBack()} press={()=>navigation.navigate('Profile')}/>
      
       <View >
         <SearchBar onChangeText={handleSearch} value={searchQuery} placeholder={"search plant"} />

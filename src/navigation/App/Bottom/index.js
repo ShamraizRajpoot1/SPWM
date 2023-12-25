@@ -10,6 +10,8 @@ import CareTaker from '../../../screens/appFlow/CareTakers';
 import Setting from '../../../screens/appFlow/Settings';
 import { scale } from 'react-native-size-matters';
 import Library from '../../../screens/appFlow/Library';
+import LibraryStack from '../LibraryStack';
+import SettingStack from '../SettingStack';
 
 const Bottom = createBottomTabNavigator();
 
@@ -66,22 +68,22 @@ const BottomTab = () => {
         }}
       />
       <Bottom.Screen
-        name="Library"
-        component={Library}
+        name="LibraryStack"
+        component={LibraryStack}
         options={{
           headerShown: false,
-          tabBarLabel: 'Library',
+          tabBarLabel: 'LibraryStack',
           tabBarIcon: ({color, size}) => (
             <Image
-              source={appIcons.bottomUser}
+              source={appIcons.menu}
               style={[styles.icon,{width:responsiveScreenWidth(6)}]}
             />
           ),
         }}
       />
       <Bottom.Screen
-        name="Setting"
-        component={Setting}
+        name="SettingStack"
+        component={SettingStack}
         options={{
           headerShown: false,
           tabBarLabel: 'Setting',

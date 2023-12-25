@@ -11,6 +11,7 @@ export const Colors = {
     appBackground3: '#000000',
     appBackground4: '#F5F5F5',
     appBackground5: '#9BFFD1',
+    appBackground6: '#F5F5F5',
 
     transperant: 'transperant'
 

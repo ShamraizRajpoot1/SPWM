@@ -3,6 +3,7 @@ import React from 'react'
 import { responsiveScreenHeight, responsiveScreenWidth } from 'react-native-responsive-dimensions'
 import { fontSize } from '../../services/utilities/Fonts'
 import { Colors } from '../../services/utilities/Colors'
+import { scale } from 'react-native-size-matters'
 
 const CircleCard = ({ title, value, color }) => {
   return (
@@ -17,9 +18,9 @@ export default CircleCard
 
 const styles = StyleSheet.create({
     circle: {
-        width: responsiveScreenWidth(35),
-        height: responsiveScreenWidth(35),
-        borderRadius: 75,
+        width: responsiveScreenWidth(40),
+        height: responsiveScreenWidth(40),
+        borderRadius: scale(100),
         justifyContent: 'center',
         alignItems: 'center',
         margin: responsiveScreenHeight(2),

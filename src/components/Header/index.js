@@ -23,9 +23,11 @@ const Header = (props) => {
         <Image source={appIcons.back} style={styles.logo}/>}
         </TouchableOpacity>
         <Text style={styles.text}>{props.text}</Text>
-        <TouchableOpacity style={styles.user}>
+        {props.profile ? <View style={styles.user}></View> :
+        <TouchableOpacity style={styles.user} onPress={props.press}>
          <Image source={appIcons.user} style={styles.logo}/>
         </TouchableOpacity>
+}
       </View>
    
   );

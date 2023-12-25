@@ -41,4 +41,39 @@ export const AppStyles = StyleSheet.create({
         marginTop: responsiveScreenHeight(5),
         alignSelf:'center'
       },
+      field: {
+        fontSize: fontSize.lebal,
+        color:Colors.lebal
+      },
+      dcontainer: {
+    
+        height: responsiveScreenHeight(7),
+        borderRadius: scale(10),
+        width: responsiveScreenWidth(80),
+        marginTop: responsiveScreenHeight(1),
+      },
+      Dropdown: {
+        backgroundColor: Colors.appBackground2,
+        borderRadius: scale(10),
+        width: responsiveScreenWidth(80),
+        height:responsiveScreenHeight(6)
+      },
+      dropDownStyle: {
+        backgroundColor: Colors.fieldBackground,
+        borderBottomLeftRadius: 5,
+        borderBottomRightRadius: 5,
+        width: responsiveScreenWidth(90),
+      },
+      imageContainer: {
+        marginVertical: responsiveHeight(1),
+        alignItems: 'center',
+        alignSelf:'center',
+        justifyContent: 'center',
+        width: '100%',
+      },
+      image: {
+        height: responsiveScreenWidth(30),
+        width: responsiveScreenWidth(30),
+        borderRadius: scale(100),
+      },
 })

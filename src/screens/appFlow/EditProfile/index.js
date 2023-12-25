@@ -10,14 +10,36 @@ import { AppStyles } from '../../../services/utilities/AppStyles';
 import LinearGradient from 'react-native-linear-gradient';
 import Header from '../../../components/Header';
 import SwitchToggle from "react-native-switch-toggle";
-import Button from '../../../components/Button';
+import InputField from '../../../components/InputField';
 import { appIcons } from '../../../services/utilities/Assets';
+import Button from '../../../components/Button';
+import * as ImagePicker from 'react-native-image-picker';
 
-const Setting = ({navigation}) => {
-  const [on, setOn] = useState(false);
-  const Add = () =>{
- navigation.navigate('HomeStack')
-  }
+const EditProfile = ({navigation}) => {
+    const [image, setImage] = useState(null);
+  const pickImage = () => {
+    const options = {
+      title: 'Select Image',
+      storageOptions: {
+        skipBackup: true,
+        path: 'images',
+      },
+    };
+
+    ImagePicker.launchImageLibrary(options, (response) => {
+      console.log('ImagePicker Response:', response);
+    
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.error) {
+        console.log('ImagePicker Error: ', response.error);
+      } else if (response.customButton) {
+        console.log('User tapped custom button: ', response.customButton);
+      } else {
+        setImage({ uri: response.assets[0].uri });
+      }
+    });
+  };
   return (
     
     <LinearGradient
@@ -28,7 +50,7 @@ const Setting = ({navigation}) => {
         AppStyles.linearGradient,
       ]}
     >
-      <Header text={"Settings"} press={()=>navigation.navigate('Profile')} />
+      <Header back onPress={()=>navigation.goBack()} text={"Edit Profile"} profile/>
      <KeyboardAvoidingView
         style={{flex: 1}}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -40,27 +62,25 @@ const Setting = ({navigation}) => {
             contentContainerStyle={[AppStyles.contentContainer]}
             keyboardShouldPersistTaps="handled">
     <View style={styles.container}>
-    <View style={AppStyles.imageContainer}>
-              <Image style={AppStyles.image} source={appIcons.user} />
-              <Text style={styles.forgot}>Shamraiz</Text>
-            </View>
-      <View style={[AppStyles.row,{width:'97%', alignItems:'center'}]}>
-        <Text style={styles.forgot}>Notifications</Text>
-    <SwitchToggle
-      switchOn={on}
-      onPress={() => setOn(!on)} 
-      circleColorOff= {Colors.appBackground2}
-      circleColorOn={Colors.appBackground2}
-      backgroundColorOn={Colors.appBackground1}
-      backgroundColorOff='#C4C4C4'
-    />
-    </View>
+    <TouchableOpacity onPress={pickImage} style={AppStyles.imageContainer}>
+    {image ? (
+                <Image
+                  style={[AppStyles.image, {borderRadius: scale(10)}]}
+                  source={image}
+                />
+              ) : (
+                <Image style={AppStyles.image} source={appIcons.user} />
+              )}
+            </TouchableOpacity>
+    <InputField lebal={'Email'} placeholder={"s@gmail.com"} edit={false}/>
+    <InputField lebal={'Phone'} placeholder={"+923034518303"} />
+    <InputField lebal={'Name'} placeholder={"Shamraiz"} />
+    <InputField lebal={'Country'} placeholder={"Pakistan"} />
     <View style={AppStyles.btnContainer}>
-        <Button text={'Add CareTaker'} background={Colors.appBackground5} onPress={()=>navigation.navigate('AddCareTaker')} />
+        <Button text={'Update'} onPress={()=>navigation.navigate('Profile')} />
       </View>
-      <View style={AppStyles.btnContainer}>
-        <Button text={'Logout'} background={Colors.appBackground6} />
-      </View>
+
+     
     </View>
     </ScrollView>
     </TouchableWithoutFeedback>
@@ -70,7 +90,7 @@ const Setting = ({navigation}) => {
   );
 };
 
-export default Setting;
+export default EditProfile;
 
 const styles = StyleSheet.create({
   container: {

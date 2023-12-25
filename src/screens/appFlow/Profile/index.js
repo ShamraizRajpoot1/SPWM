@@ -10,10 +10,11 @@ import { AppStyles } from '../../../services/utilities/AppStyles';
 import LinearGradient from 'react-native-linear-gradient';
 import Header from '../../../components/Header';
 import SwitchToggle from "react-native-switch-toggle";
-import Button from '../../../components/Button';
+import InputField from '../../../components/InputField';
 import { appIcons } from '../../../services/utilities/Assets';
+import Button from '../../../components/Button';
 
-const Setting = ({navigation}) => {
+const Profile = ({navigation}) => {
   const [on, setOn] = useState(false);
   const Add = () =>{
  navigation.navigate('HomeStack')
@@ -28,7 +29,7 @@ const Setting = ({navigation}) => {
         AppStyles.linearGradient,
       ]}
     >
-      <Header text={"Settings"} press={()=>navigation.navigate('Profile')} />
+      <Header back onPress={()=>navigation.goBack()} text={"Profile"} profile/>
      <KeyboardAvoidingView
         style={{flex: 1}}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -42,24 +43,13 @@ const Setting = ({navigation}) => {
     <View style={styles.container}>
     <View style={AppStyles.imageContainer}>
               <Image style={AppStyles.image} source={appIcons.user} />
-              <Text style={styles.forgot}>Shamraiz</Text>
             </View>
-      <View style={[AppStyles.row,{width:'97%', alignItems:'center'}]}>
-        <Text style={styles.forgot}>Notifications</Text>
-    <SwitchToggle
-      switchOn={on}
-      onPress={() => setOn(!on)} 
-      circleColorOff= {Colors.appBackground2}
-      circleColorOn={Colors.appBackground2}
-      backgroundColorOn={Colors.appBackground1}
-      backgroundColorOff='#C4C4C4'
-    />
-    </View>
+    <InputField lebal={'Email'} placeholder={"s@gmail.com"} edit={false}/>
+    <InputField lebal={'Phone'} placeholder={"+923034518303"} edit={false}/>
+    <InputField lebal={'Name'} placeholder={"Shamraiz"} edit={false}/>
+    <InputField lebal={'Country'} placeholder={"Pakistan"} edit={false}/>
     <View style={AppStyles.btnContainer}>
-        <Button text={'Add CareTaker'} background={Colors.appBackground5} onPress={()=>navigation.navigate('AddCareTaker')} />
-      </View>
-      <View style={AppStyles.btnContainer}>
-        <Button text={'Logout'} background={Colors.appBackground6} />
+        <Button text={'Edit Profile'} onPress={()=>navigation.navigate('EditProfile')} />
       </View>
     </View>
     </ScrollView>
@@ -70,7 +60,7 @@ const Setting = ({navigation}) => {
   );
 };
 
-export default Setting;
+export default Profile;
 
 const styles = StyleSheet.create({
   container: {

@@ -21,7 +21,7 @@ import { responsiveScreenHeight, responsiveWidth } from 'react-native-responsive
 import { fontFamily, fontSize } from '../../../services/utilities/Fonts';
 import Header from '../../../components/Header';
 import CircleCard from '../../../components/CircleCard';
-
+import { Chart, VerticalAxis, HorizontalAxis, Line } from 'react-native-responsive-linechart'
 
 
   const PlantInfo = ({navigation}) => {
@@ -67,7 +67,7 @@ import CircleCard from '../../../components/CircleCard';
       }, []);
     return (
      <>
-        <Header back text={"Saffron Crocus"} onPress={Back} />
+        <Header back text={"Saffron Crocus"} onPress={Back} press={()=>navigation.navigate('Profile')} />
         <KeyboardAvoidingView
           style={{flex: 1}}
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -100,14 +100,23 @@ import CircleCard from '../../../components/CircleCard';
             </View>
               
               <View style={styles.graphContainer}>
-              <View style={{  marginBottom: 10 }}>
+              {/* <View style={{  marginBottom: 10 }}>
         {legend.map((item, index) => (
           <View key={index} style={{ flexDirection: 'row', alignItems: 'center', marginRight: 10 }}>
             <View style={{ width: responsiveWidth(3), height: responsiveWidth(3), backgroundColor: item.color, marginRight: 5 }} />
             <Text style={{color:Colors.lebal, fontSize: fontSize.fieldText,}}>{item.label}</Text>
           </View>
         ))}
-      </View>
+      </View> */}
+
+      {/* <Chart
+  style={{ height: 200, width: '100%', backgroundColor: '#eee' }}
+  xDomain={{ min: -2, max: 10 }}
+  yDomain={{ min: -2, max: 20 }}
+  padding={{ left: 20, top: 10, bottom: 10, right: 10 }}
+>
+  <Line data={data} smoothing="cubic-spline" theme={{ stroke: { color: 'blue', width: 1 } }} />
+</Chart> */}
 
       {/* <LineChart
         data={data}

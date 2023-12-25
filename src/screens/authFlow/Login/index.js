@@ -1,5 +1,5 @@
 import {Image, ImageBackground, KeyboardAvoidingView, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View} from 'react-native';
-import React from 'react';
+import React, { useContext, useState } from 'react';
 import InputField from '../../../components/InputField';
 import {
   responsiveScreenHeight,
@@ -12,14 +12,43 @@ import { appImages } from '../../../services/utilities/Assets';
 import { AppStyles } from '../../../services/utilities/AppStyles';
 import LinearGradient from 'react-native-linear-gradient';
 import { scale } from 'react-native-size-matters';
+import { AuthContext } from '../../../navigation/AuthProvider';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Login = ({navigation}) => {
+  const { login, user } = useContext(AuthContext)
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const SignUp = () =>{
  navigation.navigate('SignUp')
   }
-  const Login = () =>{
-    navigation.navigate('App')
-     }
+  const Login = () => {
+    // setLoading(true);
+    login(email, password)
+      .then((user) => {
+        console.log('User:', user);
+        if (user) {
+          // Returning a promise here to ensure proper chaining
+          return AsyncStorage.setItem('Token', user.uid)
+            .then(() => {
+              console.log('Token set successfully');
+              // Navigate to the 'App' screen after setting the token
+              navigation.navigate('App');
+            });
+        } else {
+          // Handle the case where user is not available
+          Alert.alert('Login Error');
+        }
+      })
+      .catch((error) => {
+        console.error('Login error:', error);
+      })
+      .finally(() => {
+        console.log('Login process completed');
+        // setLoading(false);
+      });
+  };
+  
   return (
     
     <LinearGradient
@@ -42,8 +71,8 @@ const Login = ({navigation}) => {
             keyboardShouldPersistTaps="handled">
     <View style={styles.container}>
       <Image source={appImages.logo3} style={[AppStyles.logo,{marginTop:responsiveScreenHeight(5)}]} />
-      <InputField lebal={'Email'} placeholder={"s@gmail.com"}/>
-      <InputField lebal={'Password'} secureTextEntry={true} />
+      <InputField lebal={'Email'} placeholder={"s@gmail.com"} value={email} onChangeText={setEmail} />
+      <InputField lebal={'Password'} secureTextEntry={true} value={password} onChangeText={setPassword} />
       <TouchableOpacity>
       <Text style={styles.forgot}>Forgot Password?</Text>
       </TouchableOpacity>
