@@ -63,61 +63,56 @@ const SignUp = ({navigation}) => {
       const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
       return emailRegex.test(email);
     };
-     const Signup = () => {
+    const Signup = async () => {
       try {
         setIsLoading(true);
-  
-        if (!isValidEmail(email)) {
-          showCustom()
+    
+        if (!isValidEmail(email) || password !== confirmPassword) {
+          showCustom();
+          setIsLoading(false);
           return;
         }
-        if (password !== confirmPassword) {
-          showCustom()
-          return;
-        }
-  
-        register(email, password)
-          .then(async user => {
-            const userCredential = await auth().signInWithEmailAndPassword(
-              email,
-              password,
-            );
-            const userId = userCredential.user.uid;
-
-            if (user) {
-              firestore()
-                .collection('Users')
-                .doc(userId)
-                .set({
-                  userId: userId,
-                  email: email,
-                  name: '',
-                  phone: '',
-                  location: '',
-                  profileImage: '',
-                })
-                .then(async () => {
-                  await AsyncStorage.setItem('Token', userId);
-                  setIsLoading(false);
-                  showCustomToast();
-                  navigation.navigate('App');
-                })
-                .catch(error => {
-                  setIsLoading(false);
-                });
-            } else {
-              setIsLoading(false);
-            }
-          })
-          .catch(error => {
+    
+        const userCredential = await auth().signInWithEmailAndPassword(
+          email,
+          password,
+        );
+       
+    
+        if (userCredential) {
+          const userId = userCredential.user.uid;
+    
+          try {
+            await firestore().collection('Users').doc(userId).set({
+              userId: userId,
+              email: email,
+              name: '',
+              phone: '',
+              location: '',
+              profileImage: '',
+            });
+    
+            await AsyncStorage.setItem('Token', userId);
+            setIsLoading(false);
+            showCustomToast();
+            navigation.navigate('App');
+          } catch (error) {
             setIsLoading(false);
             console.error(error);
-          });
+            // Handle firestore or AsyncStorage error
+          }
+        } else {
+          setIsLoading(false);
+          // Handle user registration error
+        }
       } catch (error) {
         setIsLoading(false);
+        console.error(error);
         Toast.show(error.message, Toast.LONG);
+        // Handle other errors
       }
     };
+    
   return (
     <LinearGradient
     colors={Colors.appGradientColors1}

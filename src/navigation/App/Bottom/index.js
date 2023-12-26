@@ -6,10 +6,7 @@ import { Colors } from '../../../services/utilities/Colors';
 import { responsiveFontSize, responsiveScreenHeight, responsiveScreenWidth } from 'react-native-responsive-dimensions';
 import HomeStack from '../HomeStack';
 import AddPlant from '../../../screens/appFlow/AddPlant';
-import CareTaker from '../../../screens/appFlow/CareTakers';
-import Setting from '../../../screens/appFlow/Settings';
 import { scale } from 'react-native-size-matters';
-import Library from '../../../screens/appFlow/Library';
 import LibraryStack from '../LibraryStack';
 import SettingStack from '../SettingStack';
 

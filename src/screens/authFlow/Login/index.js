@@ -16,37 +16,38 @@ import { AuthContext } from '../../../navigation/AuthProvider';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Login = ({navigation}) => {
-  const { login, user } = useContext(AuthContext)
+ // const { login, user } = useContext(AuthContext)
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const SignUp = () =>{
  navigation.navigate('SignUp')
   }
   const Login = () => {
+    navigation.navigate('App');
     // setLoading(true);
-    login(email, password)
-      .then((user) => {
-        console.log('User:', user);
-        if (user) {
-          // Returning a promise here to ensure proper chaining
-          return AsyncStorage.setItem('Token', user.uid)
-            .then(() => {
-              console.log('Token set successfully');
-              // Navigate to the 'App' screen after setting the token
-              navigation.navigate('App');
-            });
-        } else {
-          // Handle the case where user is not available
-          Alert.alert('Login Error');
-        }
-      })
-      .catch((error) => {
-        console.error('Login error:', error);
-      })
-      .finally(() => {
-        console.log('Login process completed');
-        // setLoading(false);
-      });
+    // login(email, password)
+    //   .then((user) => {
+    //     console.log('User:', user);
+    //     if (user) {
+    //       // Returning a promise here to ensure proper chaining
+    //       return AsyncStorage.setItem('Token', user.uid)
+    //         .then(() => {
+    //           console.log('Token set successfully');
+    //           // Navigate to the 'App' screen after setting the token
+    //           navigation.navigate('App');
+    //         });
+    //     } else {
+    //       // Handle the case where user is not available
+    //       Alert.alert('Login Error');
+    //     }
+    //   })
+    //   .catch((error) => {
+    //     console.error('Login error:', error);
+    //   })
+    //   .finally(() => {
+    //     console.log('Login process completed');
+    //     // setLoading(false);
+    //   });
   };
   
   return (

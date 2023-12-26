@@ -13,7 +13,7 @@ import EditProfile from '../../../screens/appFlow/EditProfile'
 const Stack = createNativeStackNavigator()
 const HomeStack = () => {
   return (
-    <Stack.Navigator screenOptions={{headerShown: false}}>
+    <Stack.Navigator screenOptions={{headerShown: false}} initialRouteName='Home' >
         <Stack.Screen name='Home' component={Home} />
         <Stack.Screen name='Plants' component={Plants} />
         <Stack.Screen name='PlantInfo' component={PlantInfo} />

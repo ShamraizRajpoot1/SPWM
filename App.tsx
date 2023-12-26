@@ -7,11 +7,11 @@ import {SafeAreaProvider} from 'react-native-safe-area-context';
 
 const App = () => {
   return (
-    // <SafeAreaProvider>
-    <AuthProvider>
+     
+     <AuthProvider>
    <Navigation />
    <Toast />
-   </AuthProvider>
+    </AuthProvider>
  
   );
 };
