@@ -18,7 +18,7 @@ const Home = ({ navigation }) => {
     ];
 
     const renderItem = ({ item }) => (
-        <TouchableOpacity style={styles.plants}>
+        <TouchableOpacity onPress={()=> navigation.navigate('PlantInfo')} style={styles.plants}>
             <Image source={item.source} style={styles.plantImage} />
         </TouchableOpacity>
     );
@@ -30,13 +30,13 @@ const Home = ({ navigation }) => {
     ];
 
     const renderItem1 = ({ item }) => (
-        <View style={styles.listItem}>
+        <TouchableOpacity onPress={()=>navigation.navigate('CareTakerDetail')} style={styles.listItem}>
             <View style={styles.caretaker}>
                 <Image source={item.source} style={styles.image} />
             </View>
 
             <Text style={styles.name}>{item.name}</Text>
-        </View>
+        </TouchableOpacity>
     );
     return (
         <LinearGradient

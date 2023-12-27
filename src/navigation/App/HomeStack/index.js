@@ -8,6 +8,7 @@ import PlantInfo from '../../../screens/appFlow/PlantsInfo/Index'
 import CareTakers from '../../../screens/appFlow/CareTakers'
 import Profile from '../../../screens/appFlow/Profile'
 import EditProfile from '../../../screens/appFlow/EditProfile'
+import CareTakerDetail from '../../../screens/appFlow/CareTakerDetail'
 
 
 const Stack = createNativeStackNavigator()
@@ -20,6 +21,7 @@ const HomeStack = () => {
         <Stack.Screen name='CareTakers' component={CareTakers} />
         <Stack.Screen name='Profile' component={Profile} />
         <Stack.Screen name='EditProfile' component={EditProfile} />
+        <Stack.Screen name='CareTakerDetail' component={CareTakerDetail} />
     </Stack.Navigator>
   )
 }

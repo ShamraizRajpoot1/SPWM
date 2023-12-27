@@ -13,7 +13,7 @@ const Navigation = () => {
   const {user, setUser} = useContext(AuthContext);
   const [initializing, setInitializing] = useState(false);
   const [loading, setLoading] = useState(true)
-
+  
   const onAuthStateChanged = user => {
     setUser(user);
     if (initializing) setInitializing(false);

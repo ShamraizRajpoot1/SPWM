@@ -76,4 +76,10 @@ export const AppStyles = StyleSheet.create({
         width: responsiveScreenWidth(30),
         borderRadius: scale(100),
       },
+      loginText: {
+        color: Colors.textColor1,
+        fontSize: fontSize.h1,
+        fontWeight:'700',
+        marginTop: responsiveHeight(2),
+      },
 })

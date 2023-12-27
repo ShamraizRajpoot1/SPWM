@@ -1,5 +1,5 @@
 import {Image, ImageBackground, KeyboardAvoidingView, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View} from 'react-native';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   responsiveScreenHeight,
   responsiveScreenWidth,
@@ -12,9 +12,21 @@ import Header from '../../../components/Header';
 import SwitchToggle from "react-native-switch-toggle";
 import Button from '../../../components/Button';
 import { appIcons } from '../../../services/utilities/Assets';
+import { AuthContext } from '../../../navigation/AuthProvider';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Setting = ({navigation}) => {
+  const {logout, user} = useContext(AuthContext);
   const [on, setOn] = useState(false);
+  const Logout = async () => {
+    try {
+      await AsyncStorage.removeItem('Token');
+      logout();
+      navigation.navigate('Auth', {screen: 'Login'});
+    } catch (error) {
+      console.error('Error getting Token from AsyncStorage:', error);
+    }
+  };
   const Add = () =>{
  navigation.navigate('HomeStack')
   }
@@ -59,7 +71,7 @@ const Setting = ({navigation}) => {
         <Button text={'Add CareTaker'} background={Colors.appBackground5} onPress={()=>navigation.navigate('AddCareTaker')} />
       </View>
       <View style={AppStyles.btnContainer}>
-        <Button text={'Logout'} background={Colors.appBackground6} />
+        <Button text={'Logout'} background={Colors.appBackground6} onPress={Logout} />
       </View>
     </View>
     </ScrollView>

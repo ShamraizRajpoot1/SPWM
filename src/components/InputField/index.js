@@ -149,8 +149,9 @@ import { Colors } from '../../services/utilities/Colors';
       backgroundColor: Colors.textColor1,
     },
     username: {
-      color: Colors.textColor1,
-      fontSize: fontSize.userName,
+      color: Colors.textColor4,
+      fontSize: fontSize.fieldText,
+      fontWeight:'700'
     },
   });
   

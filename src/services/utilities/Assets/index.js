@@ -27,6 +27,9 @@ const appImages = {
         bottomUser : require('../../../assets/icons/bottomUser.png'),
         bottomPlus : require('../../../assets/icons/bottomPlus.png'),
         right : require('../../../assets/icons/right.png'),
+        cross : require('../../../assets/icons/cross.png'),
+        tickgreen : require('../../../assets/icons/tickgreen.png'),
+        delete : require('../../../assets/icons/delete.png'),
     }
     
         export { appImages, appIcons}

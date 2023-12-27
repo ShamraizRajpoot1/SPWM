@@ -21,6 +21,8 @@ import Button from '../../../components/Button';
 import firestore from '@react-native-firebase/firestore';
 import { firebase } from '@react-native-firebase/firestore';
 import Toast from 'react-native-toast-message';
+import LinearGradient from 'react-native-linear-gradient';
+import { fontSize } from '../../../services/utilities/Fonts';
 
 const Forgot = ({navigation}) => {
   const [email, setEmail] = useState('');
@@ -36,7 +38,7 @@ const Forgot = ({navigation}) => {
       autoHide: true,
       topOffset: 30,
       bottomOffset: 40,
-      text1Style: { height: responsiveScreenHeight(20) , fontWeight: 'bold', fontSize: 16, width: 200, marginVertical: responsiveScreenHeight(2) }, 
+      text1Style: { color:Colors.textColor1, fontWeight: 'bold', fontSize:fontSize.fieldText }, 
       text2Style: { width: 200 },
     });
   };
@@ -44,7 +46,7 @@ const Forgot = ({navigation}) => {
     navigation.goBack();
   };
   const isButtonDisabled = buttonDisabled;
-  const buttonColor = isButtonDisabled ? Colors.disabledButton : Colors.button1;
+  const buttonColor = isButtonDisabled ? Colors.appBackground6 : Colors.button1;
   const checkEmailExistence = () => {
     const usersRef = firestore().collection('Users');
     usersRef
@@ -82,8 +84,15 @@ const Forgot = ({navigation}) => {
   };
   
   return (
-    <>
-      <Header Image={true} onPress={back} />
+    <LinearGradient
+    colors={Colors.appGradientColors1}
+      start={{ x: -1, y:-1  }}
+      end={{ x: 0, y: 1 }}
+      style={[
+        AppStyles.linearGradient,
+      ]}
+    >
+      <Header back text={"Forgot Password"} profile onPress={back} />
       <KeyboardAvoidingView
         style={{flex: 1}}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -107,13 +116,13 @@ const Forgot = ({navigation}) => {
                 type="email-address"
                 onChangeText={setEmail}
                 value={email}
-                message={message}
+               // message={message}
               />
             </View>
 
             <View
               style={[
-                AppStyles.button,
+                AppStyles.btnContainer,
                 {marginTop: responsiveScreenHeight(8)},
               ]}>
               <Button
@@ -127,7 +136,7 @@ const Forgot = ({navigation}) => {
           </ScrollView>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
-    </>
+      </LinearGradient>
   );
 };
 
@@ -135,7 +144,7 @@ export default Forgot;
 
 const styles = StyleSheet.create({
   text: {
-    marginLeft: responsiveWidth(10),
+    marginLeft: responsiveWidth(2),
     marginTop: responsiveHeight(8),
     marginBottom: responsiveHeight(2),
   },
