@@ -21,9 +21,10 @@ import CircleCard from '../../../components/CircleCard';
 import { appIcons, appImages } from '../../../services/utilities/Assets';
 import { responsiveScreenWidth, responsiveWidth } from 'react-native-responsive-dimensions';
 import { fontFamily, fontSize } from '../../../services/utilities/Fonts';
+import database from '@react-native-firebase/database';
 
-
-const PlantInfo = ({ navigation }) => {
+const PlantInfo = ({route, navigation }) => {
+  const { id } = route.params; 
   const [image, setImage] = useState(null);
 
   const Back = () => {
@@ -60,9 +61,30 @@ const PlantInfo = ({ navigation }) => {
   const [soilMoisture, setSoilMoisture] = useState(75);
 
   useEffect(() => {
-    setTemperature(25);
-    setHumidity(60);
-    setSoilMoisture(75);
+    // Fetch temperature
+    const temperatureRef = database().ref(`HouseInfo/${id}/temperature`)
+    temperatureRef.on('value', snapshot => {
+      setTemperature(snapshot.val());
+    });
+
+    // Fetch humidity
+    const humidityRef = database().ref(`HouseInfo/${id}/humidity`);
+    humidityRef.on('value', snapshot => {
+      setHumidity(snapshot.val());
+    });
+
+    // Fetch moisture
+    const moistureRef = database().ref(`HouseInfo/${id}/moisture`);
+    moistureRef.on('value', snapshot => {
+      setSoilMoisture(snapshot.val());
+    });
+
+    // Clean up the listeners on unmount
+    return () => {
+      temperatureRef.off('value');
+      humidityRef.off('value');
+      moistureRef.off('value');
+    };
   }, []);
   return (
     <>
@@ -114,7 +136,7 @@ const PlantInfo = ({ navigation }) => {
 
             <View style={styles.graphContainer}>
 
-              {/* <LineChart
+              <LineChart
         data={data}
         width={350}
         height={300}
@@ -138,7 +160,7 @@ const PlantInfo = ({ navigation }) => {
           marginVertical: 8,
           borderRadius: 16,
         }}
-      /> */}
+      />
             </View>
             <TouchableOpacity onPress={()=>navigation.navigate('CareTakerDetail')} style={styles.listItem}>
             <View style={styles.caretaker}>

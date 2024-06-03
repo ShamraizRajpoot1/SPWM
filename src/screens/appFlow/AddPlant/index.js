@@ -1,5 +1,5 @@
 import {Image, ImageBackground, KeyboardAvoidingView, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View} from 'react-native';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import InputField from '../../../components/InputField';
 import {
   responsiveScreenHeight,
@@ -14,13 +14,58 @@ import LinearGradient from 'react-native-linear-gradient';
 import { scale } from 'react-native-size-matters';
 import Header from '../../../components/Header';
 import DropDownPicker from 'react-native-dropdown-picker';
+import firestore from '@react-native-firebase/firestore';
+import { AuthContext } from '../../../navigation/AuthProvider';
 
 const AddPlant = ({navigation}) => {
-  const Add = () =>{
- navigation.navigate('HomeStack')
-  }
+  const {user} = useContext(AuthContext)
+  const userid = user.uid;
+  const userDocRef = firestore().collection('Devices').doc(userid);
+  
+  const Add = async () => {
+    const deviceData = {
+      name: name,
+      location: location,
+      deviceId: deviceId,
+      plant: status
+    };
+  
+    try {
+      // Query all documents in the 'Devices' collection to check for existing deviceId
+      const devicesSnapshot = await firestore().collection('Devices').get();
+      
+      let deviceExists = false;
+      devicesSnapshot.forEach(doc => {
+        const devices = doc.data().messages || [];
+        if (devices.some(device => device.deviceId === deviceId)) {
+          deviceExists = true;
+        }
+      });
+  
+      if (deviceExists) {
+        console.log('Device ID already exists in Firestore');
+        return; // Exit the function if the device ID exists
+      }
+  
+      // If device ID does not exist, add the new device data
+      await userDocRef.set({
+        messages: firestore.FieldValue.arrayUnion(deviceData)
+      }, { merge: true });
+  
+      console.log('Device added successfully');
+      // Uncomment the following line if you want to navigate after successful addition
+       navigation.navigate('HomeStack');
+    } catch (error) {
+      console.error('Error adding message to Firestore:', error);
+    }
+  };
+  
+  
   const [isOpen, setIsOpen] = useState(false);
   const [status, setStatus] = useState('');
+  const [name, setName] = useState('')
+  const [location, setLocation] = useState('')
+  const [deviceId, setDeviceId] = useState('')
   const items = [
     {label: 'Safroon Crocus', value: 'Safroon Crocus'},
     {label: 'Vanila Orchard', value: 'Vanila Orchard'},
@@ -50,10 +95,10 @@ const AddPlant = ({navigation}) => {
             contentContainerStyle={[AppStyles.contentContainer]}
             keyboardShouldPersistTaps="handled">
     <View style={styles.container}>
-    <InputField lebal={'Plant Name'} />
-      <InputField lebal={'Location'} />
+    <InputField lebal={'Plant Name'} onChangeText={setName} value={name} />
+      <InputField lebal={'Location'} onChangeText={setLocation} value={location} />
       <View style={{marginTop:responsiveScreenHeight(2)}}>
-              <Text style={AppStyles.field}>Plant Name</Text>
+              <Text style={AppStyles.field}>Plant</Text>
               <View >
                 <DropDownPicker
                   items={items.map((item, index) => ({
@@ -75,7 +120,7 @@ const AddPlant = ({navigation}) => {
                 />
               </View>
             </View>
-            <InputField lebal={'Device Seriel'} />
+            <InputField lebal={'Device Seriel'} onChangeText={setDeviceId} value={deviceId} />
       <View
         style={[AppStyles.btnContainer, {marginTop: responsiveScreenHeight(10), marginBottom:10}]}>
         <Button text={'Add'} background={Colors.appBackground1} onPress={Add}/>

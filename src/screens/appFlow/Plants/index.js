@@ -10,7 +10,7 @@ import {
     TouchableOpacity,
     ImageBackground,
   } from 'react-native';
-  import React, {useState} from 'react';
+  import React, {useContext, useEffect, useState} from 'react';
   
   import {
     responsiveFontSize,
@@ -25,46 +25,42 @@ import {
   import { Colors } from '../../../services/utilities/Colors';
 import { AppStyles } from '../../../services/utilities/AppStyles';
 import LinearGradient from 'react-native-linear-gradient';
-  
+import { AuthContext } from '../../../navigation/AuthProvider';
+import firestore from '@react-native-firebase/firestore';
   const Plants = ({navigation}) => {
-    const initialData = [
-      {
-        id: '1',
-        plantImage: appImages.item1,
-        name: 'Safron Crocus',
-        location: 'Pasrur',
-      },
-      {
-        id: '2',
-        plantImage: appImages.item2,
-        name: 'Venila Orchard',
-        location: 'Sialkot',
-      },
-      {
-        id: '3',
-        plantImage: appImages.item1,
-        name: 'Safron Crocus',
-        location: 'Pasrur',
-      },
-      {
-        id: '4',
-        plantImage: appImages.item2,
-        name: 'Venila Orchard',
-        location: 'Sialkot',
-      },
-      {
-        id: '5',
-        plantImage: appImages.item1,
-        name: 'Safron Crocus',
-        location: 'Pasrur',
-      },
-      {
-        id: '6',
-        plantImage: appImages.item2,
-        name: 'Venila Orchard',
-        location: 'Sialkot',
-      },
-    ];
+    const {user} = useContext(AuthContext)
+    const userid = user.uid;
+const userDocRef = firestore().collection('Devices').doc(userid);
+
+useEffect(() => {
+  const fetchMessages = async () => {
+   // const userDocRef = firestore().collection('Devices').doc(userid);
+    
+    try {
+      const docSnapshot = await userDocRef.get();
+      
+      if (docSnapshot.exists) {
+        const userData = docSnapshot.data();
+        const messages = userData.messages || []; // Get the messages array, or an empty array if it doesn't exist
+        
+        console.log('Fetched messages:', messages);
+        setInitialData(messages);
+        setFilteredData(messages)
+      } else {
+        console.log('No document found with the specified userid');
+        setInitialData([]); // Set an empty array if the document doesn't exist
+      }
+    } catch (error) {
+      console.error('Error fetching messages from Firestore:', error);
+      setInitialData([]); // Set an empty array if an error occurs
+    }
+  };
+
+  fetchMessages();
+}, []);
+
+    
+    const [initialData, setInitialData] = useState([])
     const [searchQuery, setSearchQuery] = useState('');
     const [filteredData, setFilteredData] = useState(initialData);
   
@@ -81,13 +77,13 @@ import LinearGradient from 'react-native-linear-gradient';
       }
     };
   
-    const Info = () =>{
-      navigation.navigate('PlantInfo');
-    }
+    const Info = (id) => {
+      navigation.navigate('PlantInfo', { id });
+    };
     const renderItem = ({item}) => (
-      <TouchableOpacity style={styles.itemContainer} onPress={Info}>
+      <TouchableOpacity style={styles.itemContainer} onPress={() => Info(item.deviceId)}>
         <View style={styles.plantrow}>
-          <Image source={item.plantImage} style={styles.image} />
+          <Image source={appImages.item2} style={styles.image} />
           <View style={styles.nameContainer}>
             <Text style={[styles.name, {fontWeight: 'bold'}]}>{item.name}</Text>
             <Text style={styles.name}>{item.location}</Text>
@@ -110,7 +106,7 @@ import LinearGradient from 'react-native-linear-gradient';
         <Header back text={"Plants"} onPress={()=>navigation.goBack()} press={()=>navigation.navigate('Profile')} />
        
         <View >
-          <SearchBar onChangeText={handleSearch} value={searchQuery} placeholder={"search plant"} />
+          <SearchBar onChangeText={handleSearch} value={searchQuery} placeholder={"search caretaker"} />
         </View>
         
 
@@ -118,7 +114,7 @@ import LinearGradient from 'react-native-linear-gradient';
                 <FlatList
                   data={filteredData}
                   renderItem={renderItem}
-                  keyExtractor={item => item.id}
+                  keyExtractor={item => item.deviceId}
                   scrollEnabled={false} 
                 />
               </View>

@@ -72,9 +72,9 @@ const EditProfile = ({navigation}) => {
                 <Image style={AppStyles.image} source={appIcons.user} />
               )}
             </TouchableOpacity>
-    <InputField lebal={'Email'} placeholder={"s@gmail.com"} edit={false}/>
+    <InputField lebal={'Email'} placeholder={"abc@gmail.com"} edit={false}/>
     <InputField lebal={'Phone'} placeholder={"+923034518303"} />
-    <InputField lebal={'Name'} placeholder={"Shamraiz"} />
+    <InputField lebal={'Name'} placeholder={"username"} />
     <InputField lebal={'Country'} placeholder={"Pakistan"} />
     <View style={AppStyles.btnContainer}>
         <Button text={'Update'} onPress={()=>navigation.navigate('Profile')} />

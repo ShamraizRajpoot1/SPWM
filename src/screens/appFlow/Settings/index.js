@@ -89,7 +89,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   
-  
   forgot:{
     color:Colors.textColor1,
     marginTop:responsiveScreenHeight(1),
