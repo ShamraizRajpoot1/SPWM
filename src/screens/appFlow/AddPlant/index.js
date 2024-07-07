@@ -1,5 +1,5 @@
 import {Image, ImageBackground, KeyboardAvoidingView, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View} from 'react-native';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import InputField from '../../../components/InputField';
 import {
   responsiveScreenHeight,
@@ -21,7 +21,29 @@ const AddPlant = ({navigation}) => {
   const {user} = useContext(AuthContext)
   const userid = user.uid;
   const userDocRef = firestore().collection('Devices').doc(userid);
+  const plantDocRef = firestore().collection('Plants');
+    const [items,setItems] = useState([])
+    useEffect(() => {
+      const fetchPlants = async () => {
+        try {
+          const plantsCollectionRef = firestore().collection('Plants');
+          const querySnapshot = await plantsCollectionRef.get();
+          const plants = [];
   
+          querySnapshot.forEach((doc) => {
+            plants.push({ id: doc.id, ...doc.data() });
+          });
+  
+          console.log('Fetched plants:', plants);
+          setItems(plants);
+        } catch (error) {
+          console.error('Error fetching plants from Firestore:', error);
+          setItems([]);
+        }
+      };
+  
+      fetchPlants();
+    }, []); // Empty dependency array to run only once
   const Add = async () => {
     const deviceData = {
       name: name,
@@ -31,7 +53,6 @@ const AddPlant = ({navigation}) => {
     };
   
     try {
-      // Query all documents in the 'Devices' collection to check for existing deviceId
       const devicesSnapshot = await firestore().collection('Devices').get();
       
       let deviceExists = false;
@@ -66,12 +87,7 @@ const AddPlant = ({navigation}) => {
   const [name, setName] = useState('')
   const [location, setLocation] = useState('')
   const [deviceId, setDeviceId] = useState('')
-  const items = [
-    {label: 'Safroon Crocus', value: 'Safroon Crocus'},
-    {label: 'Vanila Orchard', value: 'Vanila Orchard'},
-    {label: 'Ginsang', value: 'Ginsang'},
-   
-  ];
+  
   
   return (
     
@@ -102,9 +118,9 @@ const AddPlant = ({navigation}) => {
               <View >
                 <DropDownPicker
                   items={items.map((item, index) => ({
-                    label: item.label,
-                    value: item.value,
-                    key: index.toString(),
+                    label: item.name,
+                    value: item.id,
+                    
                   }))}
                   arrowColor={Colors.blackText}
                   labelStyle={styles.label}

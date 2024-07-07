@@ -1,5 +1,5 @@
 import {Image, ImageBackground, KeyboardAvoidingView, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View} from 'react-native';
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   responsiveScreenHeight,
   responsiveScreenWidth,
@@ -13,20 +13,140 @@ import InputField from '../../../components/InputField';
 import { appIcons } from '../../../services/utilities/Assets';
 import Button from '../../../components/Button';
 import DropDownPicker from 'react-native-dropdown-picker';
+import { AuthContext } from '../../../navigation/AuthProvider';
+import firestore from '@react-native-firebase/firestore';
 
-const CareTakerDetail = ({navigation}) => {
-    const [isOpen, setIsOpen] = useState(false);
-  const [status, setStatus] = useState('');
-    const items = [
-        {label: 'Safroon Crocus, Pasrur', value: 'Safroon Crocus'},
-        {label: 'Vanila Orchard, Daska', value: 'Vanila Orchard'},
-        {label: 'Ginsang, Sialkot', value: 'Ginsang'},
-       
-      ];
-  const [on, setOn] = useState(false);
-  const Add = () =>{
- navigation.navigate('Home')
-  }
+const CareTakerDetail = ({route, navigation }) => {
+  const {user} = useContext(AuthContext)
+  const { id } = route.params; 
+  useEffect(() => {
+    const fetchCareTakers = async () => {
+      if (!user) return;
+
+      
+      const userId = user.uid;
+      const targetEmail = 'target-email@example.com'; // Replace with the email you want to match
+
+      try {
+        const userDocRef = firestore().collection('careTakers').doc(userId);
+        const docSnapshot = await userDocRef.get();
+
+        if (docSnapshot.exists) {
+          const userData = docSnapshot.data();
+          const careTakers = userData.careTakers || [];
+
+          const filteredCareTakers = careTakers.find(
+            careTaker => careTaker.email === id
+          );
+
+          console.log('Fetched filter careTakers:', filteredCareTakers);
+          setEmail(filteredCareTakers.email);
+          setName(filteredCareTakers.name)
+          setLocation(filteredCareTakers.location)
+          setPhone(filteredCareTakers.phone)
+          setImage(filteredCareTakers.image)
+        } else {
+          console.log('No document found with the specified userId');
+          // setCareTakers([]);
+        }
+      } catch (error) {
+        console.error('Error fetching careTakers from Firestore:', error);
+        // setCareTakers([]);
+      }
+    };
+
+    fetchCareTakers();
+  }, []);
+
+  const [image, setImage] = useState(null);
+  const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
+  const [name, setName] = useState('')
+  const [location, setLocation] = useState('')
+
+  const pickImage = () => {
+    const options = {
+      title: 'Select Image',
+      storageOptions: {
+        skipBackup: true,
+        path: 'images',
+      },
+    };
+
+    ImagePicker.launchImageLibrary(options, (response) => {
+      console.log('ImagePicker Response:', response);
+    
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.error) {
+        console.log('ImagePicker Error: ', response.error);
+      } else if (response.customButton) {
+        console.log('User tapped custom button: ', response.customButton);
+      } else {
+        setImage({ uri: response.assets[0].uri });
+      }
+    });
+  };
+
+  
+  const Update = async () => {
+    try {
+      if (!user) {
+        return;
+      }
+  
+      const userId = user.uid;
+  
+      const usercareTakerDocRef = firestore().collection('careTakers').doc(userId);
+  
+      if (name === '' || phone === '' || email === '' || location === '') {
+        console.log('====================================');
+        console.log('Please fill all fields');
+        console.log('====================================');
+        return;
+      }
+  
+      const careTaker = {
+        name: name,
+        location: location,
+        email: email,
+        phone: phone,
+        image: image,
+      };
+  
+      const docSnapshot = await usercareTakerDocRef.get();
+  
+      if (!docSnapshot.exists) {
+        console.log('No document found with the specified userId');
+        return;
+      }
+  
+      const userData = docSnapshot.data();
+      const careTakers = userData.careTakers || [];
+  
+      const careTakerIndex = careTakers.findIndex(
+        careTaker => careTaker.email === email
+      );
+  
+      if (careTakerIndex === -1) {
+        console.log('CareTaker with the specified email not found');
+        return;
+      }
+  
+      careTakers[careTakerIndex] = careTaker; // Update the careTaker details
+  
+      await usercareTakerDocRef.update({
+        careTakers: careTakers,
+      });
+  
+      console.log('CareTaker updated successfully');
+      navigation.navigate('Home');
+    } catch (error) {
+      console.error('Error updating careTaker in Firestore:', error);
+    }
+  };
+  
+  
   return (
     
     <LinearGradient
@@ -49,37 +169,22 @@ const CareTakerDetail = ({navigation}) => {
             contentContainerStyle={[AppStyles.contentContainer]}
             keyboardShouldPersistTaps="handled">
     <View style={styles.container}>
-    <View style={AppStyles.imageContainer}>
-              <Image style={AppStyles.image} source={appIcons.user} />
-            </View>
-    <InputField lebal={'Email'} placeholder={"s@gmail.com"} edit={false}/>
-    <InputField lebal={'Phone'} placeholder={"+923034518303"} edit={false}/>
-    <InputField lebal={'Name'} placeholder={"Shamraiz"} edit={false}/>
-    <View style={{marginTop:responsiveScreenHeight(2)}}>
-              <Text style={AppStyles.field}>Plant Name</Text>
-              <View >
-                <DropDownPicker
-                  items={items.map((item, index) => ({
-                    label: item.label,
-                    value: item.value,
-                    key: index.toString(),
-                  }))}
-                  arrowColor={Colors.blackText}
-                  labelStyle={styles.label}
-                  placeholder={' '}
-                  dropDownMaxHeight={170}
-                  containerStyle={AppStyles.dcontainer}
-                  style={AppStyles.Dropdown}
-                  setValue={value => setStatus(value)}
-                  setOpen={() => setIsOpen(!isOpen)}
-                  open={isOpen}
-                  value={status}
-                  dropDownStyle={AppStyles.dropDownStyle}
+    <TouchableOpacity onPress={pickImage} style={AppStyles.imageContainer}>
+    {image ? (
+                <Image
+                  style={[AppStyles.image, {borderRadius: scale(10)}]}
+                  source={image}
                 />
-              </View>
-            </View>
+              ) : (
+                <Image style={AppStyles.image} source={appIcons.user} />
+              )}
+            </TouchableOpacity>
+            <InputField edit={false} value={email} onChangeText={setEmail} lebal={'Email'} placeholder={"s@gmail.com"} />
+    <InputField type={"numeric"} value={phone} onChangeText={setPhone} lebal={'Phone'} placeholder={"+923034518303"} />
+    <InputField value={name} onChangeText={setName} lebal={'Name'} placeholder={"Shamraiz"} />
+    <InputField value={location} onChangeText={setLocation} lebal={'Location'} placeholder={"Sialkot"} />
     <View style={AppStyles.btnContainer}>
-        <Button text={'Update Care Taker'} onPress={()=>navigation.navigate('Home')} />
+        <Button text={'Update Care Taker'} onPress={Update} />
       </View>
     </View>
     </ScrollView>

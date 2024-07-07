@@ -2,7 +2,7 @@ const appImages = {
     logo : require('../../../assets/images/logo.png'),
     logo2 : require('../../../assets/images/logo2.png'),
     logo3 : require('../../../assets/images/logo3.png'),
-    item1 : require('../../../assets/images/item1.png'),
+    item1 : require('../../../assets/images/saffron.jpg'),
     item2 : require('../../../assets/images/item2.png'),
     item3 : require('../../../assets/images/item3.png'),
     background: require('../../../assets/images/background.png'),

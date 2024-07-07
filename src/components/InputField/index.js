@@ -69,6 +69,8 @@ import { Colors } from '../../services/utilities/Colors';
             onBlur={onBlurHandler}
             placeholderTextColor={Colors.placeholder}
             editable={props.edit}
+            inputMode={props.mode}
+            autoComplete={props.auto}
           />
           {props.message  && !props.secureTextEntry && (
             <View style={styles.right}>

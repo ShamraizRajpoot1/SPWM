@@ -1,5 +1,5 @@
 import {Image, ImageBackground, KeyboardAvoidingView, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View} from 'react-native';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   responsiveScreenHeight,
   responsiveScreenWidth,
@@ -14,9 +14,20 @@ import InputField from '../../../components/InputField';
 import { appIcons } from '../../../services/utilities/Assets';
 import Button from '../../../components/Button';
 import * as ImagePicker from 'react-native-image-picker';
+import firestore from '@react-native-firebase/firestore';
+import { AuthContext } from '../../../navigation/AuthProvider';
 
 const AddCareTaker = ({navigation}) => {
+  const {user} = useContext(AuthContext);
+
     const [image, setImage] = useState(null);
+    const [email, setEmail] = useState('')
+    const [phone, setPhone] = useState('')
+    const [name, setName] = useState('')
+    const [location, setLocation] = useState('')
+
+    
+
   const pickImage = () => {
     const options = {
       title: 'Select Image',
@@ -40,6 +51,51 @@ const AddCareTaker = ({navigation}) => {
       }
     });
   };
+
+  const Add = async() =>{
+    try{
+      if(!user){
+        return
+      }
+      
+      const userId = user.uid
+
+      const usercareTakerDocRef = firestore().collection('careTakers').doc(userId);
+      if(name==='',phone=== '', email==='',location===''){
+        console.log('====================================');
+        console.log('please fill all fields');
+        console.log('====================================');
+        return
+      }
+    const careTaker = {
+      name: name,
+      location: location,
+      email: email,
+      phone: phone,
+      image: image
+    };
+    const careTakerSnapshot = await firestore().collection('CareTakers').get();
+    let careTakerExist = false;
+    careTakerSnapshot.forEach(doc => {
+        const careTakers = doc.data().messages || [];
+        if (careTakers.some(careTakers => careTakers.email === email || careTakers.phone === phone)) {
+          careTakerExist = true;
+        }
+      });
+      if (careTakerExist) {
+        console.log('careTakerExist exists in Firestore');
+        return; // Exit the function if the device ID exists
+      }
+      await usercareTakerDocRef.set({
+        careTakers: firestore.FieldValue.arrayUnion(careTaker)
+      }, { merge: true });
+      console.log('Device added successfully');
+       navigation.navigate('HomeStack');
+    } catch (error) {
+      console.error('Error adding message to Firestore:', error);
+    }
+  }
+
   return (
     
     <LinearGradient
@@ -72,13 +128,13 @@ const AddCareTaker = ({navigation}) => {
                 <Image style={AppStyles.image} source={appIcons.user} />
               )}
             </TouchableOpacity>
-    <InputField lebal={'Email'} placeholder={"s@gmail.com"} />
-    <InputField lebal={'Phone'} placeholder={"+923034518303"} />
-    <InputField lebal={'Name'} placeholder={"Shamraiz"} />
-    <InputField lebal={'Location'} placeholder={"Pakistan"} />
+    <InputField mode={"email"} value={email} onChangeText={setEmail} lebal={'Email'} placeholder={"s@gmail.com"} />
+    <InputField type={"number-pad"} value={phone} onChangeText={setPhone} lebal={'Phone'} placeholder={"+923034518303"} />
+    <InputField value={name} onChangeText={setName} lebal={'Name'} placeholder={"Shamraiz"} />
+    <InputField value={location} onChangeText={setLocation} lebal={'Location'} placeholder={"Sialkot"} />
     <View style={AppStyles.btnContainer}>
-        <Button text={'Add'} onPress={()=>navigation.navigate('HomeStack')} />
-      </View>
+        <Button text={'Add'} onPress={Add} />
+    </View>
 
      
     </View>

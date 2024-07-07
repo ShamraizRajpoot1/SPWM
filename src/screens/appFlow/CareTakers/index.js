@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
   ImageBackground,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 
 import {
   responsiveFontSize,
@@ -25,16 +25,44 @@ import Header from '../../../components/Header';
 import { Colors } from '../../../services/utilities/Colors';
 import { AppStyles } from '../../../services/utilities/AppStyles';
 import LinearGradient from 'react-native-linear-gradient';
+import { AuthContext } from '../../../navigation/AuthProvider';
 
+import firestore from '@react-native-firebase/firestore';
 const CareTakers = ({navigation}) => {
-  const initialData = [
-   
-    { id: '1', name: 'Care Taker1', userImage: appImages.user, location: 'Pasrur', },
-    { id: '2', name: 'Care Taker2', userImage: appImages.user, location: 'Pasrur', },
-    { id: '3', name: 'Care Taker3', userImage: appImages.user, location: 'Pasrur', },
-    { id: '4', name: 'Care Taker4', userImage: appImages.user, location: 'Pasrur', },
+  const {user} = useContext(AuthContext)
+  const [initialData, setInitialData] = useState([])
+
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+
+    const userId = user.uid;
+    const careTakersRef = firestore().collection('careTakers').doc(userId);
+
+    const unsubscribeCareTakers = careTakersRef.onSnapshot(docSnapshot => {
+      if (docSnapshot.exists) {
+        const userData = docSnapshot.data();
+        const careTakers = userData.careTakers || [];
+        console.log('Fetched careTakers:', careTakers);
+        setInitialData(careTakers);
+        setFilteredData(careTakers)
+      } else {
+        console.log('No document found with the specified userId');
+        setInitialData([]);
+      }
+    }, error => {
+      console.error('Error fetching careTakers from Firestore:', error);
+      setInitialData([]);
+    });
+
     
-  ];
+
+    // Clean up the listeners when the component unmounts
+    return () => {
+      unsubscribeCareTakers();
+    };
+  }, []);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredData, setFilteredData] = useState(initialData);
 
@@ -51,13 +79,13 @@ const CareTakers = ({navigation}) => {
     }
   };
 
-  const Info = () =>{
-    navigation.navigate('PlantInfo');
-  }
+  const caretakerInfo = (id) => {
+    navigation.navigate('CareTakerDetail', { id });
+  };
   const renderItem = ({item}) => (
-    <TouchableOpacity style={styles.itemContainer} onPress={Info}>
+    <TouchableOpacity style={styles.itemContainer} onPress={()=>caretakerInfo(item.email)}>
       <View style={styles.plantrow}>
-        <Image source={item.userImage} style={styles.image} />
+        <Image source={item.image ? item.image : appImages.user} style={styles.image} />
         <View style={styles.nameContainer}>
           <Text style={[styles.name, {fontWeight: 'bold'}]}>{item.name}</Text>
           <Text style={styles.name}>{item.location}</Text>

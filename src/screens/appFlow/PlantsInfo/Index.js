@@ -56,9 +56,9 @@ const PlantInfo = ({route, navigation }) => {
     { label: 'Humidity', color: 'rgba(0, 0, 255, 1)' },
     { label: 'Soil Moisture', color: 'rgba(0, 128, 0, 1)' },
   ];
-  const [temperature, setTemperature] = useState(25);
-  const [humidity, setHumidity] = useState(60);
-  const [soilMoisture, setSoilMoisture] = useState(75);
+  const [temperature, setTemperature] = useState('');
+  const [humidity, setHumidity] = useState('');
+  const [soilMoisture, setSoilMoisture] = useState('');
 
   useEffect(() => {
     // Fetch temperature
@@ -129,7 +129,7 @@ const PlantInfo = ({route, navigation }) => {
             <View style={[AppStyles.row, { marginTop: 0, }]}>
               <CircleCard
                 title="Soil Moisture"
-                value={`${soilMoisture}%`}
+                value={`${soilMoisture}`}
                 color="#98FB98"
               />
             </View>
