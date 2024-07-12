@@ -1,5 +1,5 @@
-import { StyleSheet, Text, View } from 'react-native';
 import React, { useEffect } from 'react';
+import { StyleSheet } from 'react-native';
 import Navigation from './src/navigation';
 import AuthProvider from './src/navigation/AuthProvider';
 import Toast from 'react-native-toast-message';
@@ -8,10 +8,10 @@ import messaging from '@react-native-firebase/messaging';
 import notifee, { AndroidImportance } from '@notifee/react-native';
 import GetData from './src/screens/appFlow/GetData';
 import BackgroundFetch from 'react-native-background-fetch';
+import { Linking } from 'react-native';
 
 const App = () => {
   useEffect(() => {
-    // Request permissions (iOS)
     const requestPermission = async () => {
       const authStatus = await messaging().requestPermission();
       const enabled =
@@ -23,27 +23,18 @@ const App = () => {
       }
     };
 
-    requestPermission();
-
-    // Get the device token
     const getToken = async () => {
       const token = await messaging().getToken();
       console.log('FCM Token:', token);
     };
 
-    getToken();
-
-    // Listen to whether the token changes
     const unsubscribe = messaging().onTokenRefresh(token => {
       console.log('FCM Token refreshed:', token);
     });
 
-    // Handle background messages
-    messaging().setBackgroundMessageHandler(async remoteMessage => {
-      console.log('Message handled in the background!', remoteMessage);
-    });
+    requestPermission();
+    getToken();
 
-    // Handle foreground messages
     const unsubscribeOnMessage = messaging().onMessage(async remoteMessage => {
       console.log('A new FCM message arrived!', JSON.stringify(remoteMessage));
       await notifee.displayNotification({
@@ -52,30 +43,34 @@ const App = () => {
         android: {
           channelId: 'default',
           importance: AndroidImportance.HIGH,
+          pressAction: {
+            id: 'default',
+            launchActivity: 'default',
+            url: `yourapp://plantinfo/${remoteMessage.data.deviceId}`,
+          },
         },
       });
     });
-
-    // Configure background fetch
+ 
     const configureBackgroundFetch = async () => {
       BackgroundFetch.configure(
         {
-          minimumFetchInterval: 0.05, // Fetch interval in minutes
-          stopOnTerminate: false, // Continue running when the app is terminated
-          startOnBoot: true, // Restart when the device is restarted
+          minimumFetchInterval: 15,
+          stopOnTerminate: false,
+          startOnBoot: true,
+          enableHeadless: true,
         },
-        async (taskId) => {
+        async taskId => {
           console.log('[BackgroundFetch] taskId: ', taskId);
           await GetData();
           BackgroundFetch.finish(taskId);
         },
-        (taskId) => {
+        taskId => {
           console.log('[BackgroundFetch] failed to start: ', taskId);
           BackgroundFetch.finish(taskId);
         }
       );
 
-      // Start the background fetch
       BackgroundFetch.start();
     };
 
@@ -88,7 +83,6 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    // Create a notification channel for Android
     const createChannel = async () => {
       await notifee.createChannel({
         id: 'default',
@@ -98,14 +92,25 @@ const App = () => {
     };
 
     createChannel();
+
+    const handleOpenURL = ({ url }) => {
+      console.log('Opened URL:', url);
+      Linking.openURL(url);
+    };
+
+    Linking.addEventListener('url', handleOpenURL);
+
+    return () => {
+      Linking.removeEventListener('url', handleOpenURL);
+    };
   }, []);
 
   return (
     <AuthProvider>
       <SafeAreaProvider>
-        <GetData />
+        <GetData /> 
         <Navigation />
-        <Toast />
+        <Toast ref={(ref) => Toast.setRef(ref)} />
       </SafeAreaProvider>
     </AuthProvider>
   );

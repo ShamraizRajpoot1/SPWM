@@ -21,7 +21,77 @@ const AddPlant = ({navigation}) => {
   const {user} = useContext(AuthContext)
   const userid = user.uid;
   const userDocRef = firestore().collection('Devices').doc(userid);
-  const plantDocRef = firestore().collection('Plants');
+  const careTakerDocRef = firestore().collection('careTakers').doc(userid)
+  const [careTaker, setCareTaker] = useState([])
+  useEffect(() => {
+    const careTakerDocRef = firestore().collection('careTakers').doc(userid);
+    const devicesDocRef = firestore().collection('Devices').doc(userid);
+
+    const fetchCareTakers = async () => {
+      try {
+        const doc = await careTakerDocRef.get();
+        if (doc.exists) {
+          const data = doc.data();
+          const careTakers = data.careTakers.map((careTaker) => ({
+            id: careTaker.email,
+            ...careTaker,
+          }));
+
+          const devicesDoc = await devicesDocRef.get();
+          if (devicesDoc.exists) {
+            const devicesData = devicesDoc.data();
+
+            const filteredCareTakers = careTakers.filter(careTaker => {
+              return devicesData.messages.every(device => device.careTaker !== careTaker.email);
+            });
+
+            setCareTaker(filteredCareTakers.map((careTaker) => ({
+              label: careTaker.name,
+              value: careTaker.email,
+            })));
+          } else {
+            console.log('No devices document found!');
+          }
+        } else {
+          console.log('No caretakers document found!');
+        }
+      } catch (error) {
+        console.error('Error fetching caretakers from Firestore:', error);
+      }
+    };
+
+    fetchCareTakers();
+
+    const unsubscribeDevices = devicesDocRef.onSnapshot(async (devicesDoc) => {
+      if (devicesDoc.exists) {
+        const devicesData = devicesDoc.data();
+        const doc = await careTakerDocRef.get();
+        if (doc.exists) {
+          const data = doc.data();
+          const careTakers = data.careTakers.map((careTaker) => ({
+            id: careTaker.email,
+            ...careTaker,
+          }));
+
+          const filteredCareTakers = careTakers.filter(careTaker => {
+            return devicesData.messages.every(device => device.careTaker !== careTaker.email);
+          });
+
+          setCareTaker(filteredCareTakers.map((careTaker) => ({
+            label: careTaker.name,
+            value: careTaker.email,
+          })));
+        }
+      } else {
+        console.log('No devices document found!');
+      }
+    });
+
+    return () => {
+      unsubscribeDevices();
+    };
+  }, []);
+
     const [items,setItems] = useState([])
     useEffect(() => {
       const fetchPlants = async () => {
@@ -49,6 +119,7 @@ const AddPlant = ({navigation}) => {
       name: name,
       location: location,
       deviceId: deviceId,
+      careTaker: status1,
       plant: status
     };
   
@@ -84,6 +155,8 @@ const AddPlant = ({navigation}) => {
   
   const [isOpen, setIsOpen] = useState(false);
   const [status, setStatus] = useState('');
+  const [isOpen1, setIsOpen1] = useState(false);
+  const [status1, setStatus1] = useState('');
   const [name, setName] = useState('')
   const [location, setLocation] = useState('')
   const [deviceId, setDeviceId] = useState('')
@@ -132,6 +205,25 @@ const AddPlant = ({navigation}) => {
                   setOpen={() => setIsOpen(!isOpen)}
                   open={isOpen}
                   value={status}
+                  dropDownStyle={AppStyles.dropDownStyle}
+                />
+              </View>
+            </View>
+            <View style={{marginTop:responsiveScreenHeight(2)}}>
+              <Text style={AppStyles.field}>Care Taker</Text>
+              <View >
+                <DropDownPicker
+                  items={careTaker}
+                  arrowColor={Colors.blackText}
+                  labelStyle={styles.label}
+                  placeholder={' '}
+                  dropDownMaxHeight={170}
+                  containerStyle={AppStyles.dcontainer}
+                  style={AppStyles.Dropdown}
+                  setValue={value => setStatus1(value)}
+                  setOpen={() => setIsOpen1(!isOpen1)}
+                  open={isOpen1}
+                  value={status1}
                   dropDownStyle={AppStyles.dropDownStyle}
                 />
               </View>

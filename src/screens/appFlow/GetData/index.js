@@ -75,26 +75,26 @@ const GetData = ({ navigation }) => {
 
           if (!isOptimal && wasOptimal) {
             await notifee.displayNotification({
-              title: 'Plant Condition Alert',
-              body: `The conditions for your plant ${item.plant} are not optimal!\nTemperature: ${temperature}°C\nHumidity: ${humidity}%\nMoisture: ${moisture}%`,
+              title: `${item.name} ${item.location} `,
+              body: `The conditions for your plant are not optimal!\nTemperature: ${temperature}°C\nHumidity: ${humidity}%\nMoisture: ${moisture}%`,
               android: {
                 channelId: 'default',
                 importance: AndroidImportance.HIGH,
                 color: '#FF0000',
-                smallIcon: 'ic_launcher',
+                smallIcon: 'ic_launcher', 
                 largeIcon: 'ic_launcher',
                 style: {
                   type: AndroidStyle.BIGTEXT,
-                  text: `Temperature: ${temperature}°C\nHumidity: ${humidity}%\nMoisture: ${moisture}%`,
+                  text: `The conditions for your plant are not optimal`,
                 },
                 pressAction: {
                   id: 'default',
                   launchActivity: 'default',
-                  url: `yourapp://plantinfo/${item.deviceId}`,
+                  url: `plantInfo/${item.deviceId}`,
                 },
-                actions: [
+                actions: [ 
                   {
-                    title: 'View Details',
+                    title: 'View Details',  
                     pressAction: {
                       id: 'view-details',
                       launchActivity: 'default',
@@ -151,14 +151,16 @@ const GetData = ({ navigation }) => {
     const subscription = notifee.onForegroundEvent(async ({ type, detail }) => {
       if (type === EventType.PRESS) {
         const { notification } = detail;
-        const { url } = notification.android?.pressAction;
-        console.log('notefee',detail )
+        console.log('Notification Payload:', notification);
+        const url = notification?.android?.pressAction?.url;
+        console.log('Extracted URL:', url);
+        
         if (url) {
           // Extract deviceId from the deep link URL
           const deviceId = url.split('/').pop(); 
   
-          // Navigate to PlantInfo screen
-          navigation.navigate('PlantInfo', { Id:deviceId }); 
+          // Navigate to PlantInfo screen 
+          navigation.navigate('HomeStack', { screen: 'PlantInfo', Id: deviceId }); 
         }
       }
     });

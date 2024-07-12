@@ -1,5 +1,5 @@
 import {Image, ImageBackground, KeyboardAvoidingView, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View} from 'react-native';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   responsiveScreenHeight,
   responsiveScreenWidth,
@@ -14,15 +14,41 @@ import Button from '../../../components/Button';
 import { appIcons } from '../../../services/utilities/Assets';
 import { AuthContext } from '../../../navigation/AuthProvider';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import firestore from '@react-native-firebase/firestore';
+import { scale } from 'react-native-size-matters';
 const Setting = ({navigation}) => {
   const {logout, user} = useContext(AuthContext);
   const [on, setOn] = useState(false);
+  
+  const [userData, setUserData] = useState([])
+  const [image, setImage] = useState(null)
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+  
+    const userId = user.uid;
+    const userRef = firestore().collection('Users').doc(userId);
+  
+    const unsubscribe = userRef.onSnapshot((snapshot) => {
+      if (snapshot.exists) {
+        setUserData(snapshot.data());
+        setImage(snapshot.data().profileImage)
+        console.log('User data updated:', snapshot.data());
+      } else {
+        console.log('User document does not exist');
+      }
+    });
+  
+    return () => unsubscribe(); // Cleanup function to unsubscribe from snapshot listener
+  
+  }, []);
+
   const Logout = async () => {
     try {
       await AsyncStorage.removeItem('Token');
       logout();
-      navigation.navigate('Auth', {screen: 'Login'});
+      navigation.navigate('Auth');
     } catch (error) {
       console.error('Error getting Token from AsyncStorage:', error);
     }
@@ -53,10 +79,17 @@ const Setting = ({navigation}) => {
             keyboardShouldPersistTaps="handled">
     <View style={styles.container}>
     <View style={AppStyles.imageContainer}>
-              <Image style={AppStyles.image} source={appIcons.user} />
-              <Text style={styles.forgot}>Shamraiz</Text>
+    {image ? (
+                <Image
+                  style={[AppStyles.image, {borderRadius: scale(100)}]}
+                  source={image}
+                />
+              ) : (
+                <Image style={AppStyles.image} source={appIcons.user} />
+              )}
+              <Text style={styles.forgot}>{userData.name}</Text>
             </View>
-      <View style={[AppStyles.row,{width:'97%', alignItems:'center'}]}>
+      {/* <View style={[AppStyles.row,{width:'97%', alignItems:'center'}]}>
         <Text style={styles.forgot}>Notifications</Text>
     <SwitchToggle
       switchOn={on}
@@ -66,7 +99,7 @@ const Setting = ({navigation}) => {
       backgroundColorOn={Colors.appBackground1}
       backgroundColorOff='#C4C4C4'
     />
-    </View>
+    </View> */}
     <View style={AppStyles.btnContainer}>
         <Button text={'Add CareTaker'} background={Colors.appBackground5} onPress={()=>navigation.navigate('AddCareTaker')} />
       </View>

@@ -15,6 +15,8 @@ import Button from '../../../components/Button';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { AuthContext } from '../../../navigation/AuthProvider';
 import firestore from '@react-native-firebase/firestore';
+import * as ImagePicker from 'react-native-image-picker';
+
 
 const CareTakerDetail = ({route, navigation }) => {
   const {user} = useContext(AuthContext)
@@ -25,7 +27,6 @@ const CareTakerDetail = ({route, navigation }) => {
 
       
       const userId = user.uid;
-      const targetEmail = 'target-email@example.com'; // Replace with the email you want to match
 
       try {
         const userDocRef = firestore().collection('careTakers').doc(userId);
@@ -57,6 +58,36 @@ const CareTakerDetail = ({route, navigation }) => {
 
     fetchCareTakers();
   }, []);
+
+  useEffect(() => {
+    const userId = user.uid
+    const devicesDocRef = firestore().collection('Devices').doc(userId);
+  
+    const fetchDevicesWithoutCareTaker = async () => {
+      try {
+        const devicesDoc = await devicesDocRef.get();
+        if (devicesDoc.exists) {
+          const devicesData = devicesDoc.data();
+          const devicesWithoutCareTaker = devicesData.messages.filter(device => !device.careTaker || device.careTaker===id);
+          const devicesWithoutCare = devicesData.messages.find(device => device.careTaker===id);
+          if (devicesWithoutCare){
+          setStatus(devicesWithoutCare.deviceId)
+          }
+          setItems(devicesWithoutCareTaker)
+          console.log('Devices without caretaker:', devicesWithoutCare);
+        } else {
+          console.log('No devices document found!');
+        }
+      } catch (error) {
+        console.error('Error fetching devices from Firestore:', error);
+      }
+    };
+  
+    fetchDevicesWithoutCareTaker();
+  }, []);
+  const [items, setItems] = useState([])
+  const [isOpen, setIsOpen] = useState(false);
+  const [status, setStatus] = useState(id);
 
   const [image, setImage] = useState(null);
   const [email, setEmail] = useState('')
@@ -138,7 +169,48 @@ const CareTakerDetail = ({route, navigation }) => {
       await usercareTakerDocRef.update({
         careTakers: careTakers,
       });
-  
+      if (status) {
+        try {
+          const devicesRef = firestore().collection('Devices').doc(userId);
+          const devicesDoc = await devicesRef.get();
+          
+          if (devicesDoc.exists) {
+            const devicesData = devicesDoc.data();
+            
+            // Update messages array
+            const updatedMessages = devicesData.messages.map(device => {
+              if (device.deviceId === status) {
+                // Assign user's email as careTaker for the selected device
+                return {
+                  ...device,
+                  careTaker: email,
+                };
+              } else if (device.careTaker === email) {
+                // Remove email as careTaker only if it matches current email
+                return {
+                  ...device,
+                  careTaker: '',
+                };
+              } else {
+                // Keep existing careTaker assignments unchanged
+                return device;
+              }
+            });
+      
+            // Update Firestore document with the updated messages array
+            await devicesRef.update({
+              messages: updatedMessages,
+            });
+      
+            console.log('Devices updated successfully!');
+          } else {
+            console.log('No devices document found!');
+          }
+        } catch (error) {
+          console.error('Error updating devices in Firestore:', error);
+        }
+      }
+      
       console.log('CareTaker updated successfully');
       navigation.navigate('Home');
     } catch (error) {
@@ -183,6 +255,30 @@ const CareTakerDetail = ({route, navigation }) => {
     <InputField type={"numeric"} value={phone} onChangeText={setPhone} lebal={'Phone'} placeholder={"+923034518303"} />
     <InputField value={name} onChangeText={setName} lebal={'Name'} placeholder={"Shamraiz"} />
     <InputField value={location} onChangeText={setLocation} lebal={'Location'} placeholder={"Sialkot"} />
+    <View style={{marginTop:responsiveScreenHeight(2)}}>
+              <Text style={AppStyles.field}>Plant</Text>
+              <View >
+                <DropDownPicker
+                  items={items.map((item, index) => ({
+                    label: item.name,
+                    value: item.deviceId,
+                    
+                  }))}
+                  defaultValue={status}
+                  arrowColor={Colors.blackText}
+                  labelStyle={styles.label}
+                  placeholder={' '}
+                  dropDownMaxHeight={170}
+                  containerStyle={AppStyles.dcontainer}
+                  style={AppStyles.Dropdown}
+                  setValue={value => setStatus(value)}
+                  setOpen={() => setIsOpen(!isOpen)}
+                  open={isOpen}
+                  value={status}
+                  dropDownStyle={AppStyles.dropDownStyle}
+                />
+              </View>
+              </View>
     <View style={AppStyles.btnContainer}>
         <Button text={'Update Care Taker'} onPress={Update} />
       </View>

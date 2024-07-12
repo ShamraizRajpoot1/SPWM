@@ -1,5 +1,5 @@
 import {Image, ImageBackground, KeyboardAvoidingView, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View} from 'react-native';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   responsiveScreenHeight,
   responsiveScreenWidth,
@@ -16,6 +16,7 @@ import Button from '../../../components/Button';
 import * as ImagePicker from 'react-native-image-picker';
 import firestore from '@react-native-firebase/firestore';
 import { AuthContext } from '../../../navigation/AuthProvider';
+import DropDownPicker from 'react-native-dropdown-picker';
 
 const AddCareTaker = ({navigation}) => {
   const {user} = useContext(AuthContext);
@@ -77,7 +78,7 @@ const AddCareTaker = ({navigation}) => {
     const careTakerSnapshot = await firestore().collection('CareTakers').get();
     let careTakerExist = false;
     careTakerSnapshot.forEach(doc => {
-        const careTakers = doc.data().messages || [];
+        const careTakers = doc.data().careTakers || [];
         if (careTakers.some(careTakers => careTakers.email === email || careTakers.phone === phone)) {
           careTakerExist = true;
         }
@@ -89,13 +90,67 @@ const AddCareTaker = ({navigation}) => {
       await usercareTakerDocRef.set({
         careTakers: firestore.FieldValue.arrayUnion(careTaker)
       }, { merge: true });
+      if (status) {
+        try {
+          const devicesRef = firestore().collection('Devices').doc(userId);
+          const devicesDoc = await devicesRef.get();
+          if (devicesDoc.exists) {
+            const devicesData = devicesDoc.data();
+            const updatedMessages = devicesData.messages.map(device => {
+              if (device.deviceId === status) {
+                return {
+                  ...device,
+                  careTaker: email, // Assign user's email as careTaker
+                };
+              }
+              return device;
+            });
+  
+            await devicesRef.update({
+              messages: updatedMessages,
+            });
+  
+            console.log('Device updated successfully!');
+          } else {
+            console.log('No devices document found!');
+          }
+        } catch (error) {
+          console.error('Error updating device in Firestore:', error);
+        }
+      }
+
       console.log('Device added successfully');
        navigation.navigate('HomeStack');
     } catch (error) {
       console.error('Error adding message to Firestore:', error);
     }
   }
-
+  useEffect(() => {
+    const userId = user.uid
+    const devicesDocRef = firestore().collection('Devices').doc(userId);
+  
+    const fetchDevicesWithoutCareTaker = async () => {
+      try {
+        const devicesDoc = await devicesDocRef.get();
+        if (devicesDoc.exists) {
+          const devicesData = devicesDoc.data();
+          const devicesWithoutCareTaker = devicesData.messages.filter(device => !device.careTaker);
+          
+          setItems(devicesWithoutCareTaker)
+          console.log('Devices without caretaker:', devicesWithoutCareTaker);
+        } else {
+          console.log('No devices document found!');
+        }
+      } catch (error) {
+        console.error('Error fetching devices from Firestore:', error);
+      }
+    };
+  
+    fetchDevicesWithoutCareTaker();
+  }, []);
+  const [items, setItems] = useState([])
+  const [isOpen, setIsOpen] = useState(false);
+  const [status, setStatus] = useState('');
   return (
     
     <LinearGradient
@@ -131,6 +186,29 @@ const AddCareTaker = ({navigation}) => {
     <InputField mode={"email"} value={email} onChangeText={setEmail} lebal={'Email'} placeholder={"s@gmail.com"} />
     <InputField type={"number-pad"} value={phone} onChangeText={setPhone} lebal={'Phone'} placeholder={"+923034518303"} />
     <InputField value={name} onChangeText={setName} lebal={'Name'} placeholder={"Shamraiz"} />
+    <View style={{marginTop:responsiveScreenHeight(2)}}>
+              <Text style={AppStyles.field}>Plant</Text>
+              <View >
+                <DropDownPicker
+                  items={items.map((item, index) => ({
+                    label: item.name,
+                    value: item.deviceId,
+                    
+                  }))}
+                  arrowColor={Colors.blackText}
+                  labelStyle={styles.label}
+                  placeholder={' '}
+                  dropDownMaxHeight={170}
+                  containerStyle={AppStyles.dcontainer}
+                  style={AppStyles.Dropdown}
+                  setValue={value => setStatus(value)}
+                  setOpen={() => setIsOpen(!isOpen)}
+                  open={isOpen}
+                  value={status}
+                  dropDownStyle={AppStyles.dropDownStyle}
+                />
+              </View>
+              </View>
     <InputField value={location} onChangeText={setLocation} lebal={'Location'} placeholder={"Sialkot"} />
     <View style={AppStyles.btnContainer}>
         <Button text={'Add'} onPress={Add} />

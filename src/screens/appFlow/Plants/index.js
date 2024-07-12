@@ -81,10 +81,19 @@ const Plants = ({navigation}) => {
           const humidity = humiditySnapshot.val();
           const moisture = moistureSnapshot.val();
 
-          const isOptimal = (temperature <= 20 || temperature >= 30) ||
-                            (humidity <= 30 || humidity >= 50) ||
-                            (moisture <= 10 || moisture >= 20);
+          let plantData = {};
+          try {
+            const plantDoc = await firestore().collection('Plants').doc(item.plant).get();
+            if (plantDoc.exists) {
+              plantData = plantDoc.data();
+            }
+          } catch (error) {
+            console.error(`Error fetching plant data for plant ID ${item.plant}:`, error);
+          }
 
+          let wasOptimal = true;
+
+          const isOptimal = temperature >= 20 && temperature <= 40 && humidity >= 20 && humidity <= plantData.maxHumi;
           return {
             ...item,
             temperature,
@@ -137,7 +146,7 @@ const Plants = ({navigation}) => {
         source={appIcons.dot}
         style={[
           styles.iconright,
-          { tintColor: item.isOptimal ? 'red' : 'green' }
+          { tintColor: item.isOptimal ? 'green' : 'red' }
         ]}
       />
     </TouchableOpacity>

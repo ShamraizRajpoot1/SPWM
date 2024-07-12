@@ -1,5 +1,5 @@
 import {Image, ImageBackground, KeyboardAvoidingView, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View} from 'react-native';
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   responsiveScreenHeight,
   responsiveScreenWidth,
@@ -13,9 +13,36 @@ import SwitchToggle from "react-native-switch-toggle";
 import InputField from '../../../components/InputField';
 import { appIcons } from '../../../services/utilities/Assets';
 import Button from '../../../components/Button';
+import { AuthContext } from '../../../navigation/AuthProvider';
+import firestore from '@react-native-firebase/firestore';
+import { scale } from 'react-native-size-matters';
 
 const Profile = ({navigation}) => {
-  const [on, setOn] = useState(false);
+  const {user} = useContext(AuthContext);
+  const [userData, setUserData] = useState([])
+  const [image, setImage] = useState(null)
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+  
+    const userId = user.uid;
+    const userRef = firestore().collection('Users').doc(userId);
+  
+    const unsubscribe = userRef.onSnapshot((snapshot) => {
+      if (snapshot.exists) {
+        setUserData(snapshot.data());
+        setImage(snapshot.data().profileImage)
+        console.log('User data updated:', snapshot.data());
+      } else {
+        console.log('User document does not exist');
+      }
+    });
+  
+    return () => unsubscribe(); // Cleanup function to unsubscribe from snapshot listener
+  
+  }, []);
+  
   const Add = () =>{
  navigation.navigate('HomeStack')
   }
@@ -42,12 +69,19 @@ const Profile = ({navigation}) => {
             keyboardShouldPersistTaps="handled">
     <View style={styles.container}>
     <View style={AppStyles.imageContainer}>
-              <Image style={AppStyles.image} source={appIcons.user} />
+    {image ? (
+                <Image
+                  style={[AppStyles.image, {borderRadius: scale(200)}]}
+                  source={image}
+                />
+              ) : (
+                <Image style={AppStyles.image} source={appIcons.user} />
+              )}
             </View>
-    <InputField lebal={'Email'} placeholder={"s@gmail.com"} edit={false}/>
-    <InputField lebal={'Phone'} placeholder={"+923034518303"} edit={false}/>
-    <InputField lebal={'Name'} placeholder={"Shamraiz"} edit={false}/>
-    <InputField lebal={'Country'} placeholder={"Pakistan"} edit={false}/>
+    <InputField lebal={'Email'} value={userData.email} placeholder={"s@gmail.com"} edit={false}/>
+    <InputField lebal={'Phone'} value={userData.phone}  edit={false}/>
+    <InputField lebal={'Name'}  value={userData.name} edit={false}/>
+    <InputField lebal={'Country'} value={userData.location} edit={false}/>
     <View style={AppStyles.btnContainer}>
         <Button text={'Edit Profile'} onPress={()=>navigation.navigate('EditProfile')} />
       </View>

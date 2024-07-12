@@ -1,5 +1,5 @@
-import {Image, ImageBackground, Keyboard, KeyboardAvoidingView, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View} from 'react-native';
-import React, { useContext, useState } from 'react';
+import {BackHandler, Image, ImageBackground, Keyboard, KeyboardAvoidingView, ScrollView, StyleSheet, Text, ToastAndroid, TouchableOpacity, TouchableWithoutFeedback, View} from 'react-native';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import InputField from '../../../components/InputField';
 import {
   responsiveScreenHeight,
@@ -17,6 +17,28 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
 
 const Login = ({navigation}) => {
+  const backPressRef = useRef(0); // Ref to track last back press time
+
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      // Get current timestamp
+      const currentTime = new Date().getTime();
+
+      // Calculate the difference with the last back press time
+      if (currentTime - backPressRef.current < 2000) {
+        // If less than 2 seconds, exit the app
+        BackHandler.exitApp();
+      } else {
+        // Show a toast message indicating press again to exit
+        ToastAndroid.show('Press back again to exit', ToastAndroid.SHORT);
+        backPressRef.current = currentTime; // Update last back press time
+      }
+
+      return true; // Prevent default behavior (exit the app)
+    });
+
+    return () => backHandler.remove(); // Cleanup the event listener on unmount
+  }, []);
   const { login, user } = useContext(AuthContext)
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

@@ -6,6 +6,7 @@ import Auth from './Auth';
 import App from './App';
 import { AuthContext } from './AuthProvider';
 import Splash from '../screens/authFlow/Splash';
+import PlantInfo from '../screens/appFlow/PlantsInfo/Index';
 
 const Stack = createNativeStackNavigator();
 
@@ -15,15 +16,13 @@ const linking = {
     screens: {
       App: {
         screens: {
-          // GetData: 'getdata',
-          PlantInfo: 'plantinfo/:deviceId', 
+          PlantInfo: 'plantinfo/:deviceId',
         },
       },
       Auth: 'auth',
     },
   },
 };
-
 
 const Navigation = () => {
   const { user, setUser } = useContext(AuthContext);

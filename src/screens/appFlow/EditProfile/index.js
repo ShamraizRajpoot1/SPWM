@@ -1,5 +1,5 @@
 import {Image, ImageBackground, KeyboardAvoidingView, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View} from 'react-native';
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   responsiveScreenHeight,
   responsiveScreenWidth,
@@ -14,9 +14,29 @@ import InputField from '../../../components/InputField';
 import { appIcons } from '../../../services/utilities/Assets';
 import Button from '../../../components/Button';
 import * as ImagePicker from 'react-native-image-picker';
+import { AuthContext } from '../../../navigation/AuthProvider';
+import firestore from '@react-native-firebase/firestore';
+import Toast from 'react-native-toast-message';
+import { scale } from 'react-native-size-matters';
 
 const EditProfile = ({navigation}) => {
+  const {user} = useContext(AuthContext);
     const [image, setImage] = useState(null);
+
+    const showCustom = () => {
+      Toast.show({
+        type: 'success',
+        position: 'top',
+        text1: 'Data Updated',
+        
+        visibilityTime: 6000,
+        autoHide: true,
+        topOffset: 30,
+        bottomOffset: 40,
+        text1Style: {  fontWeight: 'bold', fontSize: fontSize.fieldText,  }, 
+        text2Style: { width: 200 },
+      });
+    };
   const pickImage = () => {
     const options = {
       title: 'Select Image',
@@ -40,6 +60,58 @@ const EditProfile = ({navigation}) => {
       }
     });
   };
+
+  const [userData, setUserData] = useState([])
+  const [email, setEmail] = useState('')
+  const [name, setName] = useState('')
+  const [phone, setPhone] = useState('')
+  const [location, setLocation] = useState('')
+  useEffect(() => {
+    if(!user){
+      return
+    }
+    const userId = user.uid
+    const fetchUserData = async () => {
+      try {
+        const userDoc = await firestore().collection('Users').doc(userId).get();
+        if (userDoc.exists) {
+          setUserData(userDoc.data());
+          setEmail(userDoc.data().email)
+          setName(userDoc.data().name)
+          setPhone(userDoc.data().phone)
+          setLocation(userDoc.data().location)
+          setImage(userDoc.data().profileImage)
+
+          console.log('User==>', userDoc.data());
+        } else {
+          console.log('User document does not exist');
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  const updateProfile = async () => {
+    try {
+      const userId = user.uid; // Replace with actual user ID or use Firebase Authentication to get user ID
+      await firestore().collection('Users').doc(userId).update({
+        name: name,
+        phone: phone,
+        location: location,
+        profileImage: image,
+      }).then( console.log('User profile updated successfully'))
+     
+      showCustom()
+      // Navigate to profile or any other screen after update
+      navigation.navigate('Profile');
+    } catch (error) {
+      console.error('Error updating user profile:', error);
+    }
+  };
+
   return (
     
     <LinearGradient
@@ -65,19 +137,19 @@ const EditProfile = ({navigation}) => {
     <TouchableOpacity onPress={pickImage} style={AppStyles.imageContainer}>
     {image ? (
                 <Image
-                  style={[AppStyles.image, {borderRadius: scale(10)}]}
+                  style={[AppStyles.image, {borderRadius: scale(100)}]}
                   source={image}
                 />
               ) : (
                 <Image style={AppStyles.image} source={appIcons.user} />
               )}
             </TouchableOpacity>
-    <InputField lebal={'Email'} placeholder={"abc@gmail.com"} edit={false}/>
-    <InputField lebal={'Phone'} placeholder={"+923034518303"} />
-    <InputField lebal={'Name'} placeholder={"username"} />
-    <InputField lebal={'Country'} placeholder={"Pakistan"} />
+    <InputField value={email} lebal={'Email'} placeholder={"abc@gmail.com"} edit={false}/>
+    <InputField type={"numeric"} onChangeText={setPhone} value={phone} lebal={'Phone'} placeholder={"+923034518303"} />
+    <InputField onChangeText={setName} value={name} lebal={'Name'} placeholder={"username"} />
+    <InputField onChangeText={setLocation} value={location} lebal={'Country'} placeholder={"Pakistan"} />
     <View style={AppStyles.btnContainer}>
-        <Button text={'Update'} onPress={()=>navigation.navigate('Profile')} />
+        <Button text={'Update'} onPress={updateProfile} />
       </View>
 
      

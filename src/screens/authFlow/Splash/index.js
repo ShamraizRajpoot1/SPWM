@@ -14,6 +14,8 @@ const Splash = ({ navigation }) => {
       } else {
         console.log('data: ', data);
         navigation.navigate('Auth');
+        console.log('data: ', data);
+
       }
     }, delay);
 

@@ -95,7 +95,7 @@ import { Colors } from '../../services/utilities/Colors';
               {secureTextEntry ? (
                 <Image source={appIcons.eye} style={styles.passwordIcon} />
               ) : (
-                <Image source={appIcons.eye1} style={styles.passwordIcon2} />
+                <Image source={appIcons.eye} style={styles.passwordIcon} />
               )}
             </TouchableOpacity>
           )}

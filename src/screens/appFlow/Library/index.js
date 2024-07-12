@@ -30,8 +30,6 @@ import {
     const initialData = [
      
       { id: '1', name: 'Saffron Crocus', userImage: appImages.item1,},
-      { id: '2', name: 'Vanela Orchard', userImage: appImages.item2,},
-      { id: '3', name: 'Ginseng', userImage: appImages.item3,},
       
     ];
     const [searchQuery, setSearchQuery] = useState('');
