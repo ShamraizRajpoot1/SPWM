@@ -65,13 +65,15 @@ const GetData = ({ navigation }) => {
             const plantDoc = await firestore().collection('Plants').doc(item.plant).get();
             if (plantDoc.exists) {
               plantData = plantDoc.data();
+              console.log("plant Data", plantData);
             }
+
           } catch (error) {
             console.error(`Error fetching plant data for plant ID ${item.plant}:`, error);
           }
 
           let wasOptimal = true;
-          const isOptimal = temperature >= 20 && temperature <= 40 && humidity >= 20 && humidity <= plantData.maxHumi;
+          const isOptimal = temperature >= plantData.minTemp && temperature <= plantData.maxTemp && humidity >= minHumi && humidity <= plantData.maxHumi;
 
           if (!isOptimal && wasOptimal) {
             await notifee.displayNotification({

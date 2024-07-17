@@ -1,4 +1,4 @@
-import {Image, ImageBackground, KeyboardAvoidingView, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View} from 'react-native';
+import {Dimensions, Image, ImageBackground, KeyboardAvoidingView, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View} from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import {
   responsiveScreenHeight,
@@ -18,10 +18,12 @@ import { AuthContext } from '../../../navigation/AuthProvider';
 import firestore from '@react-native-firebase/firestore';
 import Toast from 'react-native-toast-message';
 import { scale } from 'react-native-size-matters';
+import storage from '@react-native-firebase/storage';
+import ImageResizer from 'react-native-image-resizer';
 
 const EditProfile = ({navigation}) => {
   const {user} = useContext(AuthContext);
-    const [image, setImage] = useState(null);
+  const [profileImage, setProfileImage] = useState(null);
 
     const showCustom = () => {
       Toast.show({
@@ -37,29 +39,44 @@ const EditProfile = ({navigation}) => {
         text2Style: { width: 200 },
       });
     };
-  const pickImage = () => {
-    const options = {
-      title: 'Select Image',
-      storageOptions: {
-        skipBackup: true,
-        path: 'images',
-      },
-    };
-
-    ImagePicker.launchImageLibrary(options, (response) => {
-      console.log('ImagePicker Response:', response);
+    const pickImage = () => {
+      const options = {
+        title: 'Select Avatar',
+        storageOptions: {
+          skipBackup: true,
+          path: 'images',
+        },
+      };
     
-      if (response.didCancel) {
-        console.log('User cancelled image picker');
-      } else if (response.error) {
-        console.log('ImagePicker Error: ', response.error);
-      } else if (response.customButton) {
-        console.log('User tapped custom button: ', response.customButton);
-      } else {
-        setImage({ uri: response.assets[0].uri });
-      }
-    });
-  };
+      ImagePicker.launchImageLibrary(options, async response => {
+        if (response.didCancel) {
+        } else if (response.error) {
+        } else if (response.assets && response.assets.length > 0) {
+          const selectedAsset = response.assets[0];
+          const source = { uri: selectedAsset.uri };
+          console.log('source', source);
+          const filename = selectedAsset.fileName;
+          const resizedImage = await ImageResizer.createResizedImage(
+            selectedAsset.uri,
+            Dimensions.get('window').width / 1,
+            Dimensions.get('window').height / 1,
+            'JPEG',
+            70,
+          );
+          const uploadUri = Platform.OS === 'ios' ? resizedImage.uri.replace('file://', '') : resizedImage.uri;
+          const reference = storage().ref(`/Users/${filename}`);
+    
+          try {
+            await reference.putFile(uploadUri);
+            const url = await reference.getDownloadURL();
+            setProfileImage(url);
+            // setIsDisabled(false)
+          } catch (error) {
+            console.error('Error in uploading image to the bucket:', error);
+          }
+        }
+      });
+    };
 
   const [userData, setUserData] = useState([])
   const [email, setEmail] = useState('')
@@ -80,7 +97,7 @@ const EditProfile = ({navigation}) => {
           setName(userDoc.data().name)
           setPhone(userDoc.data().phone)
           setLocation(userDoc.data().location)
-          setImage(userDoc.data().profileImage)
+          setProfileImage(userDoc.data().profileImage)
 
           console.log('User==>', userDoc.data());
         } else {
@@ -101,7 +118,7 @@ const EditProfile = ({navigation}) => {
         name: name,
         phone: phone,
         location: location,
-        profileImage: image,
+        profileImage: profileImage,
       }).then( console.log('User profile updated successfully'))
      
       showCustom()
@@ -135,10 +152,10 @@ const EditProfile = ({navigation}) => {
             keyboardShouldPersistTaps="handled">
     <View style={styles.container}>
     <TouchableOpacity onPress={pickImage} style={AppStyles.imageContainer}>
-    {image ? (
+    {profileImage ? (
                 <Image
                   style={[AppStyles.image, {borderRadius: scale(100)}]}
-                  source={image}
+                  source={{uri:profileImage}}
                 />
               ) : (
                 <Image style={AppStyles.image} source={appIcons.user} />

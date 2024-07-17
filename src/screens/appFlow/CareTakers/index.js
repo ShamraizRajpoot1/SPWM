@@ -85,7 +85,9 @@ const CareTakers = ({navigation}) => {
   const renderItem = ({item}) => (
     <TouchableOpacity style={styles.itemContainer} onPress={()=>caretakerInfo(item.email)}>
       <View style={styles.plantrow}>
-        <Image source={item.image ? item.image : appImages.user} style={styles.image} />
+      {item.image !== null ?
+            <Image source={{uri: item.image }} style={styles.image} />
+               : <Image source={ appImages.user } style={styles.image} />}
         <View style={styles.nameContainer}>
           <Text style={[styles.name, {fontWeight: 'bold'}]}>{item.name}</Text>
           <Text style={styles.name}>{item.location}</Text>

@@ -38,11 +38,11 @@ const CareGuide = ({navigation}) => {
     <View style={styles.container}>
     <Image source={appImages.item3} style={[AppStyles.logo,{marginTop:responsiveScreenHeight(5)}]} />
         
-        <Text style={styles.forgot}><Text style={styles.heading}>Temprature Need:</Text> 10°C to 20°C</Text>
+        <Text style={styles.forgot}><Text style={styles.heading}>Temprature Need:</Text> 17°C to 30°C</Text>
      
     
         
-        <Text style={styles.forgot}><Text style={styles.heading}>Humidity Need:</Text> 70% to 80%</Text>
+        <Text style={styles.forgot}><Text style={styles.heading}>Humidity Need:</Text> 40% to 60%</Text>
       
       
         

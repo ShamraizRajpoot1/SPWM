@@ -72,7 +72,7 @@ const Profile = ({navigation}) => {
     {image ? (
                 <Image
                   style={[AppStyles.image, {borderRadius: scale(200)}]}
-                  source={image}
+                  source={{uri:image}}
                 />
               ) : (
                 <Image style={AppStyles.image} source={appIcons.user} />

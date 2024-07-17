@@ -99,7 +99,9 @@ const Home = ({ navigation }) => {
     const renderItem1 = ({ item }) => (
         <TouchableOpacity onPress={()=>caretakerInfo(item.email)} style={styles.listItem}>
             <View style={styles.caretaker}>
-                <Image source={item.image !== null ? item.source : appImages.user } style={styles.image} />
+            {item.image !== null ?
+            <Image source={{uri: item.image }} style={styles.image} />
+               : <Image source={ appImages.user } style={styles.image} />}
             </View>
 <View>
             <Text style={styles.name}>{item.name}</Text>
@@ -206,9 +208,10 @@ const styles = StyleSheet.create({
         borderRadius: scale(12)
     },
     image: {
-        width: responsiveScreenWidth(20),
+        width: responsiveScreenWidth(21),
         height: responsiveScreenWidth(20),
         marginRight: responsiveScreenWidth(2),
+        borderRadius:scale(12)
     },
     image1: {
         width: responsiveScreenWidth(20),

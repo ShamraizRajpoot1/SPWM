@@ -53,7 +53,7 @@ const Header = (props) => {
           {image ? (
                 <Image
                 style={[styles.image, {borderRadius: scale(100)}]}
-                  source={image}
+                  source={{uri:image}}
                 />
               ) : (
                 <Image style={styles.logo} source={appIcons.user} />
