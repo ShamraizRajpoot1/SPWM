@@ -190,7 +190,7 @@ const PlantInfo = ({route, navigation }) => {
 
     const wbout = XLSX.write(wb, { type: 'binary', bookType: 'xlsx' });
 
-    const downloadsPath = RNFS.DownloadDirectoryPath + `/${name}${location} .xlsx`;
+    const downloadsPath = RNFS.DownloadDirectoryPath + `/${name}${location}.xlsx`;
     RNFS.writeFile(downloadsPath,wbout,'ascii')
     .then(() => {
       console.log('Spreadsheet created at path:', downloadsPath);
@@ -360,8 +360,8 @@ const deleteDeviceMessage = async () => {
           borderRadius: 16,
         }}
       /> */}
-<Text style={[styles.text]}>Temperature</Text>
-<LineChart
+{/* <Text style={[styles.text]}>Temperature</Text> */}
+{/* <LineChart
         data={{
           labels:labels , // Adjust labels as needed
           datasets: [
@@ -440,10 +440,10 @@ const deleteDeviceMessage = async () => {
         }}
         bezier
         style={styles.chart}
-      />
+      /> */}
 
             </View>
-            <TouchableOpacity onPress={()=>caretakerInfo(careTaker.email)} style={styles.listItem}>
+           {careTaker !== null ? <TouchableOpacity onPress={()=>caretakerInfo(careTaker.email)} style={styles.listItem}>
             <View style={styles.caretaker}>
             {image ? (
                 <Image
@@ -456,7 +456,7 @@ const deleteDeviceMessage = async () => {
             </View>
             <Text style={styles.name}>{careTaker.name}</Text>
             {/* <Text style={styles.name}>{careTaker.name}</Text> */}
-        </TouchableOpacity>
+        </TouchableOpacity> : null }
           </ScrollView>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
